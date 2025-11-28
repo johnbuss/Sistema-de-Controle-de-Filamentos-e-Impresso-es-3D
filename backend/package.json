@@ -1,7 +1,37 @@
 {
+  "name": "sistema-controle-filamentos",
+  "version": "1.0.0",
+  "description": "Sistema de controle de filamentos 3D com integração Mercado Livre",
   "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "deploy": "npm run build && gh-pages -d dist"
+  },
   "dependencies": {
-    "node-fetch": "^3.3.2",
-    "firebase-admin": "^12.0.0"
-  }
+    "firebase-admin": "^12.0.0",
+    "node-fetch": "^3.3.2"
+  },
+  "devDependencies": {
+    "vite": "^5.0.0",
+    "gh-pages": "^6.1.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/johnbuss/Sistema-de-Controle-de-Filamentos-e-Impresso-es-3D.git"
+  },
+  "keywords": [
+    "3d-printing",
+    "filament-control",
+    "mercado-livre",
+    "firebase",
+    "inventory-management"
+  ],
+  "author": "Johnbuss",
+  "license": "MIT"
 }
