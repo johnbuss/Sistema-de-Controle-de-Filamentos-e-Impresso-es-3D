@@ -2,2221 +2,1762 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <title>Sistema de Produção · Langeloh</title>
+  <title>Sistema de Controle de Filamentos e Impressões 3D</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: #020617;
-      color: #e5e7eb;
+      --bg: #0f172a;
+      --bg-soft: #020617;
+      --card: #020617;
+      --accent: #3b82f6;
+      --accent-soft: rgba(59, 130, 246, 0.12);
+      --accent-border: rgba(59, 130, 246, 0.4);
+      --accent-hover: #2563eb;
+      --danger: #ef4444;
+      --danger-soft: rgba(239, 68, 68, 0.12);
+      --text: #e5e7eb;
+      --text-soft: #9ca3af;
+      --border: #1f2937;
+      --radius-lg: 14px;
+      --radius-md: 10px;
+      --radius-pill: 999px;
+      --shadow-soft: 0 18px 45px rgba(15, 23, 42, 0.9);
     }
-    body { margin: 0; padding: 1.5rem; }
-    .container { max-width: 1200px; margin: 0 auto; }
-    h1 { font-size: 1.8rem; margin-bottom: 0.75rem; text-align: center; }
-    h2 { font-size: 1.2rem; margin-bottom: 0.5rem; }
-    h3 { font-size: 1rem; margin-top: 1rem; margin-bottom: 0.25rem; }
-    p  { margin-top: 0; color: #9ca3af; font-size: 0.9rem; }
 
-    .tabs-nav {
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+        "Segoe UI", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: radial-gradient(circle at top, #1d4ed8 0, #020617 40%, #000 100%);
+      color: var(--text);
       display: flex;
-      gap: 0.5rem;
+      align-items: stretch;
       justify-content: center;
-      margin-bottom: 1rem;
-      flex-wrap: wrap;
+      padding: 24px;
     }
-    .tab-btn {
-      border-radius: 999px;
-      border: 1px solid #1f2937;
-      padding: 0.4rem 0.9rem;
-      font-size: 0.85rem;
-      background: #020617;
-      color: #e5e7eb;
-      cursor: pointer;
-      transition: all 0.15s ease;
-    }
-    .tab-btn.active {
-      background: linear-gradient(to right, #22c55e, #0ea5e9);
-      color: #0b1120;
-      border-color: transparent;
-      box-shadow: 0 10px 30px rgba(34, 197, 94, 0.35);
-    }
-    .tab-content { display: none; }
-    .tab-content.active { display: block; }
 
-    .card {
-      background: #020617;
-      border-radius: 1rem;
-      border: 1px solid #1f2937;
-      padding: 1.2rem 1.4rem;
-      margin-top: 1.2rem;
-      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.8);
-    }
-    .card-header {
+    .app-shell {
+      width: 100%;
+      max-width: 1320px;
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.96), rgba(15, 23, 42, 0.98));
+      border-radius: 24px;
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      box-shadow: var(--shadow-soft);
       display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-      gap: 0.5rem;
-      margin-bottom: 0.7rem;
+      flex-direction: column;
+      overflow: hidden;
     }
-    .badge {
-      font-size: 0.75rem;
-      padding: 0.15rem 0.5rem;
+
+    .app-header {
+      padding: 18px 24px 12px;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .app-title-block {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .logo-circle {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 20%, #60a5fa, #1d4ed8, #020617);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 18px;
+      color: white;
+      box-shadow: 0 0 18px rgba(59, 130, 246, 0.9);
+    }
+
+    .app-title-text h1 {
+      margin: 0;
+      font-size: 18px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: #e5e7eb;
+    }
+
+    .app-title-text span {
+      display: block;
+      font-size: 11px;
+      color: var(--text-soft);
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      margin-top: 2px;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .pill {
+      border-radius: var(--radius-pill);
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      padding: 6px 12px;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--text-soft);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(15, 23, 42, 0.8);
+    }
+
+    .pill-dot {
+      width: 8px;
+      height: 8px;
       border-radius: 999px;
-      border: 1px solid #4b5563;
-      color: #9ca3af;
+      background: #22c55e;
+      box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.25);
+    }
+
+    .btn-primary,
+    .btn-ghost,
+    .btn-danger {
+      border-radius: var(--radius-pill);
+      padding: 8px 14px;
+      font-size: 12px;
+      border: 1px solid transparent;
+      background: none;
+      color: var(--text);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.16s ease-out;
       white-space: nowrap;
     }
 
-    form { display: grid; gap: 0.75rem; margin-top: 0.5rem; }
-    .form-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      gap: 0.75rem;
+    .btn-primary {
+      background: linear-gradient(120deg, #2563eb, #3b82f6);
+      border-color: rgba(59, 130, 246, 0.6);
+      box-shadow: 0 12px 25px rgba(37, 99, 235, 0.45);
     }
-    label {
-      display: block;
-      font-size: 0.8rem;
-      margin-bottom: 0.15rem;
-      color: #9ca3af;
-    }
-    input, select, textarea {
-      width: 100%;
-      padding: 0.5rem 0.6rem;
-      border-radius: 0.6rem;
-      border: 1px solid #374151;
-      background: #020617;
-      color: #e5e7eb;
-      font-size: 0.85rem;
-      box-sizing: border-box;
-    }
-    input:focus, select:focus, textarea:focus {
-      outline: none;
-      border-color: #38bdf8;
-      box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.5);
-    }
-    textarea { min-height: 60px; resize: vertical; }
 
-    .radio-group {
-      display: flex;
-      gap: 1rem;
-      font-size: 0.85rem;
-      flex-wrap: wrap;
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      background: linear-gradient(120deg, #1d4ed8, #2563eb);
+      box-shadow: 0 14px 30px rgba(37, 99, 235, 0.6);
     }
-    .radio-group label {
+
+    .btn-ghost {
+      border-color: rgba(148, 163, 184, 0.35);
+      color: var(--text-soft);
+      background: rgba(15, 23, 42, 0.6);
+    }
+
+    .btn-ghost:hover {
+      border-color: rgba(148, 163, 184, 0.7);
+      color: #e5e7eb;
+      background: rgba(15, 23, 42, 0.9);
+    }
+
+    .btn-danger {
+      border-color: rgba(239, 68, 68, 0.6);
+      color: #fecaca;
+      background: var(--danger-soft);
+    }
+
+    .btn-danger:hover {
+      background: rgba(239, 68, 68, 0.18);
+    }
+
+    .btn-icon {
+      font-size: 14px;
+      line-height: 0;
+    }
+
+    .app-body {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      min-height: 520px;
+    }
+
+    @media (max-width: 960px) {
+      body {
+        padding: 12px;
+      }
+
+      .app-body {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .sidebar {
+      border-right: 1px solid rgba(148, 163, 184, 0.18);
+      padding: 16px 14px 18px;
+      background: radial-gradient(circle at top left, rgba(37, 99, 235, 0.2), transparent 55%),
+        radial-gradient(circle at bottom, rgba(15, 23, 42, 1), rgba(15, 23, 42, 1));
+    }
+
+    .nav-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: var(--text-soft);
+      margin-bottom: 8px;
+      padding-inline: 4px;
+    }
+
+    .nav-list {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-bottom: 16px;
+    }
+
+    .nav-item {
+      border-radius: 10px;
+      padding: 8px 10px;
+      font-size: 13px;
+      color: var(--text-soft);
+      border: 1px solid transparent;
+      cursor: pointer;
       display: flex;
       align-items: center;
-      gap: 0.3rem;
-      cursor: pointer;
+      justify-content: space-between;
+      gap: 8px;
+      background: transparent;
+      transition: all 0.15s ease-out;
+    }
+
+    .nav-item-main {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .nav-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: rgba(148, 163, 184, 0.65);
+    }
+
+    .nav-label {
+      font-size: 13px;
+    }
+
+    .nav-pill {
+      font-size: 11px;
+      color: var(--text-soft);
+      background: rgba(15, 23, 42, 0.72);
+      border-radius: 999px;
+      padding: 3px 7px;
+      border: 1px solid rgba(148, 163, 184, 0.3);
+    }
+
+    .nav-item.active {
+      background: linear-gradient(
+        100deg,
+        rgba(37, 99, 235, 0.23),
+        rgba(15, 23, 42, 0.95)
+      );
+      border-color: rgba(59, 130, 246, 0.7);
+      color: #e5e7eb;
+    }
+
+    .nav-item.active .nav-dot {
+      background: #3b82f6;
+      box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.35);
+    }
+
+    .sidebar-footer {
+      margin-top: 16px;
+      padding: 10px 10px 6px;
+      border-radius: 12px;
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.2), transparent 65%);
+      font-size: 11px;
+      color: var(--text-soft);
+    }
+
+    .sidebar-footer strong {
+      color: #e5e7eb;
+      font-weight: 600;
+    }
+
+    .content {
+      padding: 16px 18px 18px;
+      background: radial-gradient(circle at top right, rgba(30, 64, 175, 0.5), transparent 55%),
+        radial-gradient(circle at bottom, #020617, #020617);
+    }
+
+    .content-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .content-title-block h2 {
+      margin: 0;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .content-title-block span {
+      display: block;
+      font-size: 12px;
+      color: var(--text-soft);
+      margin-top: 2px;
+    }
+
+    .badge {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      padding: 3px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(59, 130, 246, 0.6);
+      background: rgba(15, 23, 42, 0.8);
+      color: #93c5fd;
+    }
+
+    .content-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .content-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.3fr);
+      gap: 14px;
+    }
+
+    @media (max-width: 1100px) {
+      .content-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background: radial-gradient(circle at top, rgba(15, 23, 42, 0.96), rgba(15, 23, 42, 0.98));
+      border-radius: var(--radius-lg);
+      border: 1px solid rgba(148, 163, 184, 0.26);
+      padding: 12px 14px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      min-height: 120px;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+    }
+
+    .card-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: #e5e7eb;
+    }
+
+    .card-subtitle {
+      font-size: 11px;
+      color: var(--text-soft);
+    }
+
+    .field-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 8px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-size: 12px;
+    }
+
+    .field label {
+      color: var(--text-soft);
+      font-size: 11px;
+    }
+
+    .field input,
+    .field select {
+      border-radius: var(--radius-md);
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      background: rgba(15, 23, 42, 0.9);
+      padding: 7px 8px;
+      color: var(--text);
+      font-size: 12px;
+      outline: none;
+      transition: border-color 0.15s ease-out, box-shadow 0.15s ease-out,
+        background 0.15s ease-out;
+    }
+
+    .field input:focus,
+    .field select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.7);
+      background: rgba(15, 23, 42, 1);
+    }
+
+    .field input[type="number"]::-webkit-inner-spin-button,
+    .field input[type="number"]::-webkit-outer-spin-button {
+      -webkit-appearance: none;
       margin: 0;
     }
 
-    button {
-      border-radius: 999px;
-      border: 1px solid transparent;
-      padding: 0.5rem 1rem;
-      font-size: 0.9rem;
-      font-weight: 500;
-      cursor: pointer;
-      background: linear-gradient(to right, #22c55e, #0ea5e9);
-      color: #0b1120;
-      justify-self: flex-start;
-      display: inline-flex;
+    .field input[type="number"] {
+      -moz-appearance: textfield;
+    }
+
+    .table-wrapper {
+      border-radius: var(--radius-lg);
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      background: radial-gradient(circle at top left, rgba(37, 99, 235, 0.22), transparent 60%),
+        rgba(15, 23, 42, 0.96);
+      overflow: hidden;
+      max-height: 290px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .table-wrapper-header {
+      padding: 8px 10px;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--text-soft);
+      border-bottom: 1px solid rgba(148, 163, 184, 0.3);
+      display: flex;
       align-items: center;
-      gap: 0.4rem;
-      transition: transform 0.1s ease, box-shadow 0.1s ease, opacity 0.15s ease;
-      box-shadow: 0 10px 30px rgba(34, 197, 94, 0.35);
+      justify-content: space-between;
     }
-    button span.icon { font-size: 1rem; }
-    button:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 16px 40px rgba(56, 189, 248, 0.35);
-      opacity: 0.95;
+
+    .table-scroll {
+      overflow: auto;
     }
-    button:active {
-      transform: translateY(0);
-      box-shadow: 0 6px 18px rgba(15, 23, 42, 0.7);
-      opacity: 1;
-    }
-    .btn-small { padding: 0.25rem 0.6rem; font-size: 0.75rem; box-shadow: none; }
-    .btn-edit { background: linear-gradient(to right, #3b82f6, #22c55e); color: #0b1120; }
-    .btn-danger { background: linear-gradient(to right, #ef4444, #f97316); color: #0b1120; }
-    .btn-secondary { background: linear-gradient(to right, #6b7280, #4b5563); color: #e5e7eb; }
 
     table {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 0.75rem;
-      font-size: 0.8rem;
+      font-size: 12px;
+      min-width: 520px;
     }
-    th, td {
-      padding: 0.4rem 0.5rem;
+
+    th,
+    td {
+      padding: 6px 8px;
       text-align: left;
-      border-bottom: 1px solid #111827;
-      vertical-align: middle;
+      border-bottom: 1px solid rgba(30, 41, 59, 0.9);
       white-space: nowrap;
     }
+
     th {
-      font-weight: 500;
-      color: #9ca3af;
-      background: #020617;
+      font-size: 11px;
+      color: var(--text-soft);
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      background: rgba(15, 23, 42, 0.96);
       position: sticky;
       top: 0;
-      z-index: 1;
-    }
-    .table-wrapper {
-      max-height: 280px;
-      overflow: auto;
-      border-radius: 0.75rem;
-      border: 1px solid #111827;
-      margin-top: 0.6rem;
+      z-index: 2;
     }
 
-    .chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.25rem;
+    tr:hover td {
+      background: rgba(15, 23, 42, 0.8);
+    }
+
+    .tag {
       border-radius: 999px;
-      padding: 0.1rem 0.6rem;
-      font-size: 0.7rem;
-      border: 1px solid #1f2937;
+      padding: 2px 7px;
+      font-size: 11px;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      background: rgba(15, 23, 42, 0.85);
+      color: var(--text-soft);
     }
-    .chip-success { border-color: #22c55e33; color: #4ade80; }
-    .chip-error   { border-color: #f9731633; color: #fb923c; }
-    .chip-info    { border-color: #38bdf833; color: #7dd3fc; }
-    .chip-warning { border-color: #facc1533; color: #fde68a; }
-    .chip-dot { width: 0.35rem; height: 0.35rem; border-radius: 999px; background: currentColor; }
 
-    .summary-row {
+    .tag-ml {
+      border-color: rgba(245, 158, 11, 0.7);
+      color: #fbbf24;
+    }
+
+    .tag-shopee {
+      border-color: rgba(248, 113, 113, 0.8);
+      color: #fb7185;
+    }
+
+    .tag-amazon {
+      border-color: rgba(52, 211, 153, 0.8);
+      color: #6ee7b7;
+    }
+
+    .tag-magalu {
+      border-color: rgba(96, 165, 250, 0.8);
+      color: #93c5fd;
+    }
+
+    .status-pill {
+      border-radius: 999px;
+      padding: 2px 7px;
+      font-size: 11px;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+    }
+
+    .status-todo {
+      border-color: rgba(148, 163, 184, 0.6);
+      color: #e5e7eb;
+    }
+
+    .status-printing {
+      border-color: rgba(59, 130, 246, 0.7);
+      color: #93c5fd;
+      background: rgba(37, 99, 235, 0.12);
+    }
+
+    .status-ready {
+      border-color: rgba(52, 211, 153, 0.7);
+      color: #6ee7b7;
+      background: rgba(16, 185, 129, 0.14);
+    }
+
+    .status-sent {
+      border-color: rgba(34, 197, 94, 0.8);
+      color: #bbf7d0;
+      background: rgba(22, 163, 74, 0.16);
+    }
+
+    .status-cancelled {
+      border-color: rgba(239, 68, 68, 0.9);
+      color: #fecaca;
+      background: rgba(239, 68, 68, 0.18);
+    }
+
+    .status-returned {
+      border-color: rgba(248, 113, 113, 0.9);
+      color: #fed7d7;
+      background: rgba(248, 113, 113, 0.18);
+    }
+
+    .kpi-row {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-      gap: 0.75rem;
-      margin-top: 0.8rem;
-    }
-    .summary-card {
-      border-radius: 0.9rem;
-      border: 1px solid #111827;
-      padding: 0.6rem 0.7rem;
-      background: radial-gradient(circle at top left, #0f172a, #020617);
-    }
-    .summary-label { font-size: 0.7rem; color: #9ca3af; margin-bottom: 0.1rem; }
-    .summary-value { font-size: 0.95rem; font-weight: 600; }
-    .summary-sub   { font-size: 0.7rem; color: #6b7280; }
-    .muted { color: #6b7280; font-size: 0.75rem; }
-
-    canvas {
-      background: #020617;
-      border-radius: 0.75rem;
-      border: 1px solid #111827;
-      margin-top: 0.8rem;
-      width: 100%;
-      max-width: 100%;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
     }
 
-    .stock-item-row {
-      display: flex;
-      gap: 0.5rem;
-      margin-top: 0.4rem;
-      align-items: center;
-      flex-wrap: wrap;
+    @media (max-width: 900px) {
+      .kpi-row {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
     }
-    .stock-item-row select, .stock-item-row input { flex: 1; }
 
-    @media (max-width: 640px) {
-      body { padding: 1rem; }
-      .card { padding: 1rem 1rem; }
-      h1 { font-size: 1.5rem; }
-      table { font-size: 0.75rem; }
-      .tabs-nav { justify-content: flex-start; }
+    @media (max-width: 600px) {
+      .kpi-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .kpi-card {
+      border-radius: var(--radius-lg);
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      background: radial-gradient(circle at top left, rgba(37, 99, 235, 0.25), transparent 60%),
+        rgba(15, 23, 42, 0.96);
+      padding: 8px 9px;
+    }
+
+    .kpi-label {
+      font-size: 11px;
+      color: var(--text-soft);
+      text-transform: uppercase;
+      letter-spacing: 0.13em;
+      margin-bottom: 4px;
+    }
+
+    .kpi-value {
+      font-size: 18px;
+      font-weight: 600;
+      color: #e5e7eb;
+    }
+
+    .kpi-sub {
+      font-size: 11px;
+      color: var(--text-soft);
+      margin-top: 2px;
+    }
+
+    .muted {
+      color: var(--text-soft);
+      font-size: 11px;
+    }
+
+    .text-right {
+      text-align: right;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Sistema de Produção & Filamentos</h1>
-    <p style="text-align:center;margin-bottom:1.2rem;">
-      Filamento + energia: consumo fixo <strong>0,2 kWh/h</strong> · custo da energia <strong>R$ 0,95 / kWh</strong>.
-    </p>
-
-    <div class="tabs-nav">
-      <button class="tab-btn active" data-tab="cadastros">Cadastros</button>
-      <button class="tab-btn" data-tab="fila">Vendas, Fila & Impressões</button>
-      <button class="tab-btn" data-tab="relatorios">Relatórios & KPIs</button>
-    </div>
-
-    <!-- ABA CADASTROS -->
-    <div id="tab-cadastros" class="tab-content active">
-      <!-- FILAMENTOS -->
-      <section class="card">
-        <div class="card-header">
-          <div>
-            <h2>Cadastro de Filamentos</h2>
-            <p>Cadastre cor, material, marca e custo por kg.</p>
-          </div>
-          <span class="badge">Filamentos</span>
+  <div class="app-shell">
+    <header class="app-header">
+      <div class="app-title-block">
+        <div class="logo-circle">3D</div>
+        <div class="app-title-text">
+          <h1>Controle 3D • Langeloh</h1>
+          <span>Filamentos • Impressões • Vendas • KPIs</span>
         </div>
+      </div>
+      <div class="header-actions">
+        <div class="pill">
+          <span class="pill-dot"></span>
+          Conectado ao Firebase
+        </div>
+        <button class="btn-ghost" id="btnSyncMl">
+          <span class="btn-icon">🔄</span> Sincronizar Mercado Livre
+        </button>
+      </div>
+    </header>
 
-        <form id="filament-form">
-          <input type="hidden" id="filament-edit-id" />
-          <div class="form-grid">
-            <div>
-              <label for="filament-color">Cor *</label>
-              <input id="filament-color" type="text" placeholder="Ex: Azul Claro" required />
+    <div class="app-body">
+      <!-- SIDEBAR -->
+      <aside class="sidebar">
+        <div class="nav-title">Navegação</div>
+        <div class="nav-list">
+          <button class="nav-item active" data-tab="cadastros">
+            <div class="nav-item-main">
+              <div class="nav-dot"></div>
+              <span class="nav-label">Filamentos & Produtos</span>
             </div>
-            <div>
-              <label for="filament-material">Material *</label>
-              <input id="filament-material" type="text" placeholder="Ex: PLA, PETG, ABS" required />
-            </div>
-            <div>
-              <label for="filament-brand">Marca</label>
-              <input id="filament-brand" type="text" placeholder="Ex: 3D Fila, S3D" />
-            </div>
-            <div>
-              <label for="filament-price">Preço por kg (R$) *</label>
-              <input id="filament-price" type="number" step="0.01" min="0" required />
-            </div>
-            <div>
-              <label for="filament-qty-total">Total comprado (kg) *</label>
-              <input id="filament-qty-total" type="number" step="0.01" min="0" required />
-            </div>
-          </div>
-          <button type="submit">
-            <span class="icon">💾</span>
-            Salvar filamento
+            <span class="nav-pill">Base</span>
           </button>
-          <span class="muted">Para corrigir um filamento, clique em “Editar”, ajuste e salve novamente.</span>
-        </form>
-
-        <div class="table-wrapper">
-          <table>
-            <thead>
-              <tr>
-                <th>Cor</th>
-                <th>Material</th>
-                <th>Marca</th>
-                <th>Preço/kg (R$)</th>
-                <th>Comprado (kg)</th>
-                <th>Estoque (kg)</th>
-                <th>Ações</th>
-              </tr>
-            </thead>
-            <tbody id="filament-list-body"></tbody>
-          </table>
-        </div>
-      </section>
-
-      <!-- PRODUTOS -->
-      <section class="card">
-        <div class="card-header">
-          <div>
-            <h2>Cadastro de Produtos</h2>
-            <p>Produtos com nome, SKU, cor padrão, custo médio e estoque.</p>
-          </div>
-          <span class="badge">Produtos 3D</span>
-        </div>
-
-        <form id="product-form">
-          <input type="hidden" id="product-edit-id" />
-          <div class="form-grid">
-            <div>
-              <label for="product-sku">SKU *</label>
-              <input id="product-sku" type="text" placeholder="Ex: SUP-CABO-PLA" required />
+          <button class="nav-item" data-tab="vendas">
+            <div class="nav-item-main">
+              <div class="nav-dot"></div>
+              <span class="nav-label">Vendas</span>
             </div>
-            <div>
-              <label for="product-name">Nome do produto *</label>
-              <input id="product-name" type="text" placeholder="Ex: Suporte de cabo" required />
-            </div>
-            <div>
-              <label for="product-color">Cor padrão (opcional)</label>
-              <select id="product-color"></select>
-            </div>
-            <div>
-              <label for="product-avg-cost">Custo médio de impressão (R$)</label>
-              <input id="product-avg-cost" type="number" step="0.01" min="0" />
-            </div>
-          </div>
-          <button type="submit">
-            <span class="icon">💾</span>
-            Salvar produto
+            <span class="nav-pill">Entrada</span>
           </button>
-          <span class="muted">Esses produtos aparecem ao cadastrar vendas e estoque.</span>
-        </form>
-
-        <div class="table-wrapper">
-          <table>
-            <thead>
-              <tr>
-                <th>SKU</th>
-                <th>Nome</th>
-                <th>Cor padrão</th>
-                <th>Custo médio imp. (R$)</th>
-                <th>Estoque atual</th>
-                <th>Ações</th>
-              </tr>
-            </thead>
-            <tbody id="product-list-body"></tbody>
-          </table>
-        </div>
-      </section>
-    </div>
-
-    <!-- ABA VENDAS & FILA & IMPRESSÕES -->
-    <div id="tab-fila" class="tab-content">
-      <!-- VENDAS / PEDIDOS -->
-      <section class="card">
-        <div class="card-header">
-          <div>
-            <h2>Vendas / Pedidos</h2>
-            <p>Cadastre vendas que precisam ser produzidas e enviadas.</p>
-          </div>
-          <span class="badge">Vendas & Fila</span>
-        </div>
-
-        <form id="order-form">
-          <input type="hidden" id="order-edit-id" />
-          <div class="form-grid">
-            <div>
-              <label for="order-product">Produto (SKU) *</label>
-              <select id="order-product" required></select>
+          <button class="nav-item" data-tab="fila">
+            <div class="nav-item-main">
+              <div class="nav-dot"></div>
+              <span class="nav-label">Fila de Impressão</span>
             </div>
-            <div>
-              <label for="order-color">Cor utilizada *</label>
-              <select id="order-color" required></select>
-            </div>
-            <div>
-              <label for="order-marketplace">Marketplace *</label>
-              <select id="order-marketplace" required>
-                <option value="">Selecione</option>
-                <option>Mercado Livre</option>
-                <option>Shopee</option>
-                <option>Amazon</option>
-                <option>Magalu</option>
-                <option>Loja própria</option>
-                <option>Outros</option>
-              </select>
-            </div>
-            <div>
-              <label for="order-sale-price">Preço de venda (R$) *</label>
-              <input id="order-sale-price" type="number" step="0.01" min="0" required />
-            </div>
-            <div>
-              <label for="order-qty">Quantidade vendida</label>
-              <input id="order-qty" type="number" step="1" min="1" value="1" />
-            </div>
-            <div>
-              <label for="order-fee-percent">Taxa marketplace (%)</label>
-              <input id="order-fee-percent" type="number" step="0.01" min="0" placeholder="auto pelo marketplace" />
-            </div>
-            <div>
-              <label for="order-tax-percent">Imposto (%)</label>
-              <input id="order-tax-percent" type="number" step="0.01" min="0" readonly />
-            </div>
-            <div>
-              <label for="order-shipping-cost">Custo frete (R$)</label>
-              <input id="order-shipping-cost" type="number" step="0.01" min="0" />
-            </div>
-            <div>
-              <label for="order-sale-date">Data da venda *</label>
-              <input id="order-sale-date" type="date" required />
-            </div>
-            <div>
-              <label for="order-ship-date">Data de envio (limite) *</label>
-              <input id="order-ship-date" type="date" required />
-            </div>
-          </div>
-          <button type="submit">
-            <span class="icon">🧮</span>
-            Salvar venda / pedido
+            <span class="nav-pill">Produção</span>
           </button>
-          <span class="muted">
-            Líquido pré-impressão = venda - taxa - imposto (12,5%) - frete - embalagem (R$ 1,50).
-          </span>
-        </form>
-
-        <div class="table-wrapper">
-          <table>
-            <thead>
-              <tr>
-                <th>Venda em</th>
-                <th>Produto</th>
-                <th>Cor</th>
-                <th>Mkt</th>
-                <th>Venda (R$)</th>
-                <th>Taxa %</th>
-                <th>Imposto %</th>
-                <th>Frete (R$)</th>
-                <th>Líquido pré-imp. (R$)</th>
-                <th>Envio até</th>
-                <th>Status produção</th>
-                <th>Ações</th>
-              </tr>
-            </thead>
-            <tbody id="orders-body"></tbody>
-          </table>
+          <button class="nav-item" data-tab="impressoes">
+            <div class="nav-item-main">
+              <div class="nav-dot"></div>
+              <span class="nav-label">Registro de Impressões</span>
+            </div>
+            <span class="nav-pill">Máquinas</span>
+          </button>
+          <button class="nav-item" data-tab="relatorios">
+            <div class="nav-item-main">
+              <div class="nav-dot"></div>
+              <span class="nav-label">Relatórios & KPIs</span>
+            </div>
+            <span class="nav-pill">Gestão</span>
+          </button>
         </div>
-      </section>
 
-      <!-- FILA DE IMPRESSÃO -->
-      <section class="card">
-        <div class="card-header">
-          <div>
-            <h2>Fila de Impressão</h2>
-            <p>Pedidos pendentes, em impressão ou concluídos, por data de envio.</p>
+        <div class="sidebar-footer">
+          <strong>Lembrete:</strong> a integração com Mercado Livre roda no backend.
+          Aqui você está conectado direto ao Firestore para ver tudo.
+        </div>
+      </aside>
+
+      <!-- MAIN CONTENT -->
+      <main class="content">
+        <!-- CADASTROS -->
+        <section class="tab-panel" id="tab-cadastros">
+          <div class="content-header">
+            <div class="content-title-block">
+              <h2>
+                Filamentos & Produtos
+                <span class="badge">Cadastro base</span>
+              </h2>
+              <span>Cadastre filamentos com custo e estoque, e os SKUs 3D da operação.</span>
+            </div>
           </div>
-          <span class="badge">Fila</span>
-        </div>
 
-        <div class="table-wrapper">
-          <table>
-            <thead>
-              <tr>
-                <th>Envio até</th>
-                <th>Produto</th>
-                <th>Cor</th>
-                <th>Mkt</th>
-                <th>Líquido pré-imp. (R$)</th>
-                <th>Status produção</th>
-              </tr>
-            </thead>
-            <tbody id="queue-body"></tbody>
-          </table>
-        </div>
-      </section>
+          <div class="content-grid">
+            <!-- CAD FILAMENTOS -->
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <div class="card-title">Cadastro de Filamentos</div>
+                  <div class="card-subtitle">
+                    Cor, material, marca, custo/kg e estoque.
+                  </div>
+                </div>
+                <button class="btn-primary" id="btnAddFilament">
+                  <span class="btn-icon">➕</span> Adicionar
+                </button>
+              </div>
 
-      <!-- IMPRESSÕES -->
-      <section class="card">
-        <div class="card-header">
-          <div>
-            <h2>Registro de Impressões</h2>
-            <p>Impressões para pedidos ou para estoque, sempre com gramas e tempo.</p>
-          </div>
-          <span class="badge">Impressões</span>
-        </div>
+              <div class="field-grid">
+                <div class="field">
+                  <label>Cor</label>
+                  <input type="text" id="filCor" placeholder="Ex: OFF WHITE" />
+                </div>
+                <div class="field">
+                  <label>Material</label>
+                  <input type="text" id="filMaterial" placeholder="PLA, PETG..." />
+                </div>
+                <div class="field">
+                  <label>Marca</label>
+                  <input type="text" id="filMarca" placeholder="FullJoy, 3DFila..." />
+                </div>
+                <div class="field">
+                  <label>Preço por kg (R$)</label>
+                  <input type="number" step="0.01" id="filPrecoKg" />
+                </div>
+                <div class="field">
+                  <label>Quantidade comprada (kg)</label>
+                  <input type="number" step="0.01" id="filQtdComprada" />
+                </div>
+                <div class="field">
+                  <label>Estoque atual (kg)</label>
+                  <input type="number" step="0.01" id="filEstoque" />
+                </div>
+              </div>
 
-        <form id="print-form">
-          <input type="hidden" id="print-edit-id" />
-          <div class="form-grid">
-            <div>
-              <label>Tipo de impressão *</label>
-              <div class="radio-group">
-                <label>
-                  <input type="radio" name="print-mode" value="pedidos" checked />
-                  Produção para pedidos
-                </label>
-                <label>
-                  <input type="radio" name="print-mode" value="estoque" />
-                  Produção para estoque
-                </label>
+              <div class="table-wrapper" style="margin-top: 8px;">
+                <div class="table-wrapper-header">
+                  <span>Filamentos cadastrados</span>
+                  <span class="muted" id="filamentosResumo"></span>
+                </div>
+                <div class="table-scroll">
+                  <table id="tabelaFilamentos">
+                    <thead>
+                      <tr>
+                        <th>Cor</th>
+                        <th>Material</th>
+                        <th>Marca</th>
+                        <th>Preço/kg</th>
+                        <th>Comprado (kg)</th>
+                        <th>Estoque (kg)</th>
+                        <th>Ações</th>
+                      </tr>
+                    </thead>
+                    <tbody></tbody>
+                  </table>
+                </div>
               </div>
             </div>
-            <div>
-              <label for="print-name">Nome / referência (opcional)</label>
-              <input id="print-name" type="text" placeholder="Ex: Lote 1 - Azul PLA" />
+
+            <!-- CAD PRODUTOS -->
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <div class="card-title">Cadastro de Produtos 3D</div>
+                  <div class="card-subtitle">
+                    SKU, nome, cor padrão, custo médio de impressão e estoque.
+                  </div>
+                </div>
+                <button class="btn-primary" id="btnAddProduto">
+                  <span class="btn-icon">➕</span> Adicionar
+                </button>
+              </div>
+
+              <div class="field-grid">
+                <div class="field">
+                  <label>SKU</label>
+                  <input
+                    type="text"
+                    id="prodSku"
+                    placeholder="Ex: 1UFAMILIA3D (contendo 3D)"
+                  />
+                </div>
+                <div class="field">
+                  <label>Nome</label>
+                  <input type="text" id="prodNome" placeholder="Ex: FAMÍLIA 3D" />
+                </div>
+                <div class="field">
+                  <label>Cor padrão (opcional)</label>
+                  <input type="text" id="prodCorPadrao" placeholder="Ex: OFF WHITE" />
+                </div>
+                <div class="field">
+                  <label>Custo médio de impressão (R$)</label>
+                  <input type="number" step="0.01" id="prodCustoMedio" />
+                </div>
+                <div class="field">
+                  <label>Estoque atual (un.)</label>
+                  <input type="number" step="1" id="prodEstoque" />
+                </div>
+              </div>
+
+              <div class="table-wrapper" style="margin-top: 8px;">
+                <div class="table-wrapper-header">
+                  <span>Produtos cadastrados</span>
+                  <span class="muted" id="produtosResumo"></span>
+                </div>
+                <div class="table-scroll">
+                  <table id="tabelaProdutos">
+                    <thead>
+                      <tr>
+                        <th>SKU</th>
+                        <th>Nome</th>
+                        <th>Cor padrão</th>
+                        <th>Custo médio (R$)</th>
+                        <th>Estoque</th>
+                        <th>3D?</th>
+                        <th>Ações</th>
+                      </tr>
+                    </thead>
+                    <tbody></tbody>
+                  </table>
+                </div>
+              </div>
             </div>
-            <div>
-              <label for="print-filament">Filamento *</label>
-              <select id="print-filament" required></select>
+          </div>
+        </section>
+
+        <!-- VENDAS -->
+        <section class="tab-panel" id="tab-vendas" style="display:none;">
+          <div class="content-header">
+            <div class="content-title-block">
+              <h2>
+                Vendas
+                <span class="badge">Entrada de pedidos</span>
+              </h2>
+              <span>
+                Registro manual por enquanto. Quando a integração estiver 100%, as vendas da ML entram aqui sozinhas.
+              </span>
             </div>
-            <div>
-              <label for="print-grams">Gramas usadas *</label>
-              <input id="print-grams" type="number" step="0.01" min="0" required />
+          </div>
+
+          <div class="content-grid">
+            <!-- FORM DE VENDA -->
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <div class="card-title">Cadastro de Venda</div>
+                  <div class="card-subtitle">
+                    Cada venda já entra com status "A fazer" na fila de impressão.
+                  </div>
+                </div>
+                <button class="btn-primary" id="btnAddVenda">
+                  <span class="btn-icon">➕</span> Adicionar
+                </button>
+              </div>
+
+              <div class="field-grid">
+                <div class="field">
+                  <label>SKU do produto</label>
+                  <input type="text" id="venSku" placeholder="SKU exato" />
+                </div>
+                <div class="field">
+                  <label>Nome do produto (opcional)</label>
+                  <input type="text" id="venNome" placeholder="Se não souber, deixa em branco" />
+                </div>
+                <div class="field">
+                  <label>Marketplace</label>
+                  <select id="venMarketplace">
+                    <option value="mercadolivre">Mercado Livre</option>
+                    <option value="shopee">Shopee</option>
+                    <option value="amazon">Amazon</option>
+                    <option value="magalu">Magalu</option>
+                    <option value="outro">Outro</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label>Cor do filamento</label>
+                  <select id="venCor">
+                    <option value="">Selecione (vem dos filamentos)</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label>Preço de venda (R$)</label>
+                  <input type="number" step="0.01" id="venPreco" />
+                </div>
+                <div class="field">
+                  <label>Quantidade</label>
+                  <input type="number" step="1" id="venQtd" value="1" />
+                </div>
+                <div class="field">
+                  <label>Data da venda</label>
+                  <input type="date" id="venDataVenda" />
+                </div>
+                <div class="field">
+                  <label>Data limite de envio</label>
+                  <input type="date" id="venDataEnvio" />
+                </div>
+              </div>
+
+              <p class="muted">
+                Campos de taxa, imposto, frete e KPI de lucratividade virão da lógica que já definimos.
+              </p>
             </div>
-            <div>
-              <label for="print-time">Tempo (minutos) *</label>
-              <input id="print-time" type="number" step="1" min="1" required />
+
+            <!-- LISTA DE VENDAS -->
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <div class="card-title">Vendas cadastradas</div>
+                  <div class="card-subtitle">
+                    Status e destino na fila de impressão.
+                  </div>
+                </div>
+              </div>
+
+              <div class="field-grid" style="margin-bottom: 6px;">
+                <div class="field">
+                  <label>Filtrar marketplace</label>
+                  <select id="filtroVendaMarketplace">
+                    <option value="">Todos</option>
+                    <option value="mercadolivre">Mercado Livre</option>
+                    <option value="shopee">Shopee</option>
+                    <option value="amazon">Amazon</option>
+                    <option value="magalu">Magalu</option>
+                    <option value="outro">Outro</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label>Filtrar status</label>
+                  <select id="filtroVendaStatus">
+                    <option value="">Todos</option>
+                    <option value="afazer">A fazer</option>
+                    <option value="emimpressao">Em impressão</option>
+                    <option value="pronto">Pronto</option>
+                    <option value="enviado">Enviado</option>
+                    <option value="cancelado">Cancelado</option>
+                    <option value="devolvido">Devolvido</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="table-wrapper">
+                <div class="table-wrapper-header">
+                  <span>Vendas (Firestore)</span>
+                  <span class="muted" id="vendasResumo"></span>
+                </div>
+                <div class="table-scroll">
+                  <table id="tabelaVendas">
+                    <thead>
+                      <tr>
+                        <th>SKU</th>
+                        <th>Nome</th>
+                        <th>Marketplace</th>
+                        <th>Preço (R$)</th>
+                        <th>Qtd</th>
+                        <th>Status</th>
+                        <th>Envio</th>
+                        <th>Ações</th>
+                      </tr>
+                    </thead>
+                    <tbody></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- FILA -->
+        <section class="tab-panel" id="tab-fila" style="display:none;">
+          <div class="content-header">
+            <div class="content-title-block">
+              <h2>
+                Fila de Impressão
+                <span class="badge">Prioridade por envio</span>
+              </h2>
+              <span>
+                Aqui entram automaticamente as vendas com status "A fazer".
+              </span>
             </div>
           </div>
 
-          <div id="print-orders-section" style="margin-top:0.6rem;">
-            <label for="print-orders">Pedidos desta impressão (produção para pedidos)</label>
-            <select id="print-orders" multiple size="4"></select>
-            <span class="muted">Segure CTRL (ou CMD no Mac) para selecionar vários pedidos da fila.</span>
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <div class="card-title">Filtros da fila</div>
+                <div class="card-subtitle">
+                  Combine marketplace, tipo (3D/Outros) e status.
+                </div>
+              </div>
+            </div>
+
+            <div class="field-grid">
+              <div class="field">
+                <label>Marketplace</label>
+                <select id="filtroFilaMarketplace">
+                  <option value="">Todos</option>
+                  <option value="mercadolivre">Mercado Livre</option>
+                  <option value="shopee">Shopee</option>
+                  <option value="amazon">Amazon</option>
+                  <option value="magalu">Magalu</option>
+                  <option value="outro">Outro</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>Produto (3D x Outros)</label>
+                <select id="filtroFilaTipo">
+                  <option value="">Todos</option>
+                  <option value="3d">Apenas 3D (SKU com '3D')</option>
+                  <option value="outros">Outros</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>Status da impressão</label>
+                <select id="filtroFilaStatus">
+                  <option value="">Todos</option>
+                  <option value="afazer">A fazer</option>
+                  <option value="emimpressao">Em impressão</option>
+                  <option value="pronto">Pronto</option>
+                  <option value="enviado">Enviado</option>
+                  <option value="cancelado">Cancelado</option>
+                  <option value="devolvido">Devolvido</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="table-wrapper" style="margin-top: 8px;">
+              <div class="table-wrapper-header">
+                <span>Itens na fila</span>
+                <span class="muted" id="filaResumo"></span>
+              </div>
+              <div class="table-scroll">
+                <table id="tabelaFila">
+                  <thead>
+                    <tr>
+                      <th>SKU</th>
+                      <th>Produto</th>
+                      <th>Marketplace</th>
+                      <th>Cor</th>
+                      <th>Qtd</th>
+                      <th>Envio</th>
+                      <th>Status</th>
+                      <th>Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- IMPRESSÕES (simples, por enquanto) -->
+        <section class="tab-panel" id="tab-impressoes" style="display:none;">
+          <div class="content-header">
+            <div class="content-title-block">
+              <h2>
+                Registro de Impressões
+                <span class="badge">Custo real</span>
+              </h2>
+              <span>
+                Registro simples de impressões com tempo, gramas e custo de energia.
+              </span>
+            </div>
           </div>
 
-          <div id="stock-items-section" style="margin-top:0.8rem; display:none;">
-            <label>Produtos para estoque (produção para estoque)</label>
-            <div id="stock-items-list"></div>
-            <button type="button" id="add-stock-item-btn" class="btn-secondary btn-small" style="margin-top:0.4rem;">
-              + Adicionar SKU para estoque
-            </button>
-            <span class="muted">Cada linha representa um produto e a quantidade produzida para estoque.</span>
+          <div class="content-grid">
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <div class="card-title">Nova impressão</div>
+                  <div class="card-subtitle">
+                    Ligação com vendas/fila e desperdício detalhado a gente aprofunda na próxima versão.
+                  </div>
+                </div>
+                <button class="btn-primary" id="btnRegistrarImpressao">
+                  <span class="btn-icon">💾</span> Registrar
+                </button>
+              </div>
+
+              <div class="field-grid">
+                <div class="field">
+                  <label>Nome opcional da impressão</label>
+                  <input type="text" id="impNomeOpcional" placeholder="Ex: Batch família 3D" />
+                </div>
+                <div class="field">
+                  <label>Impressora</label>
+                  <select id="impImpressora">
+                    <option value="bambu_a1_1">Bambu Lab A1 #1</option>
+                    <option value="bambu_a1_2">Bambu Lab A1 #2</option>
+                    <option value="bambu_a1_3">Bambu Lab A1 #3</option>
+                    <option value="bambu_x1">Bambu Lab X1 Carbon</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label>Cor do filamento</label>
+                  <select id="impCor">
+                    <option value="">Selecione</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label>Gramas usadas (g)</label>
+                  <input type="number" step="0.1" id="impGramas" />
+                </div>
+                <div class="field">
+                  <label>Tempo de impressão (minutos)</label>
+                  <input type="number" step="1" id="impTempoMin" />
+                </div>
+                <div class="field">
+                  <label>Status da impressão</label>
+                  <select id="impStatus">
+                    <option value="sucesso">Sucesso</option>
+                    <option value="erro">Erro total</option>
+                    <option value="erroparcial">Erro parcial</option>
+                  </select>
+                </div>
+              </div>
+
+              <p class="muted">
+                Custo de energia calculado com base em 0,2 kWh por hora e R$ 0,95/kWh.
+              </p>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <div class="card-title">Histórico de Impressões</div>
+                  <div class="card-subtitle">
+                    Impressões registrados no Firestore.
+                  </div>
+                </div>
+              </div>
+
+              <div class="table-wrapper">
+                <div class="table-wrapper-header">
+                  <span>Impressões</span>
+                  <span class="muted" id="impressoesResumo"></span>
+                </div>
+                <div class="table-scroll">
+                  <table id="tabelaImpressoes">
+                    <thead>
+                      <tr>
+                        <th>Nome</th>
+                        <th>Impressora</th>
+                        <th>Cor</th>
+                        <th>Gramas</th>
+                        <th>Tempo (min)</th>
+                        <th>Status</th>
+                        <th>Custo energia (R$)</th>
+                      </tr>
+                    </thead>
+                    <tbody></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- RELATÓRIOS (simples, placeholder) -->
+        <section class="tab-panel" id="tab-relatorios" style="display:none;">
+          <div class="content-header">
+            <div class="content-title-block">
+              <h2>
+                Relatórios & KPIs
+                <span class="badge">Visão geral</span>
+              </h2>
+              <span>
+                Aqui vamos concentrar KPIs de filamento gasto, estoque, devoluções e lucratividade.
+              </span>
+            </div>
           </div>
 
-          <button type="submit" style="margin-top:0.8rem;">
-            <span class="icon">🧾</span>
-            Registrar impressão
-          </button>
-          <span class="muted">
-            Impressão começa como “em impressão”. Depois marque Sucesso, Erro ou Erro parcial.
-          </span>
-        </form>
-
-        <div class="table-wrapper">
-          <table>
-            <thead>
-              <tr>
-                <th>Data</th>
-                <th>Nome</th>
-                <th>Filamento</th>
-                <th>Gramas</th>
-                <th>Tempo</th>
-                <th>Status</th>
-                <th>Pedidos / Estoque</th>
-                <th>Filamento (R$)</th>
-                <th>Energia (R$)</th>
-                <th>Total (R$)</th>
-                <th>Ações</th>
-              </tr>
-            </thead>
-            <tbody id="prints-body"></tbody>
-          </table>
-        </div>
-      </section>
-    </div>
-
-    <!-- ABA RELATÓRIOS -->
-    <div id="tab-relatorios" class="tab-content">
-      <!-- RELATÓRIO FILAMENTOS -->
-      <section class="card">
-        <div class="card-header">
-          <div>
-            <h2>Relatórios · Filamentos</h2>
-            <p>Uso, desperdício, estoque, média/dia e alerta de reposição.</p>
+          <div class="card">
+            <div class="kpi-row">
+              <div class="kpi-card">
+                <div class="kpi-label">Filamento total comprado (kg)</div>
+                <div class="kpi-value" id="kpiFilamentoComprado">0</div>
+                <div class="kpi-sub">Soma de todos os filamentos cadastrados</div>
+              </div>
+              <div class="kpi-card">
+                <div class="kpi-label">Filamento em estoque (kg)</div>
+                <div class="kpi-value" id="kpiFilamentoEstoque">0</div>
+                <div class="kpi-sub">Atualizado conforme impressões (próxima iteração)</div>
+              </div>
+              <div class="kpi-card">
+                <div class="kpi-label">Qtd. vendas 3D</div>
+                <div class="kpi-value" id="kpiVendas3D">0</div>
+                <div class="kpi-sub">Baseado em SKU contendo "3D"</div>
+              </div>
+              <div class="kpi-card">
+                <div class="kpi-label">Qtd. devoluções</div>
+                <div class="kpi-value" id="kpiDevolucoes">0</div>
+                <div class="kpi-sub">Vendas com status "devolvido"</div>
+              </div>
+            </div>
           </div>
-          <span class="badge">Filamentos</span>
-        </div>
-
-        <div class="summary-row">
-          <div class="summary-card">
-            <div class="summary-label">Uso total (kg) · Sucesso</div>
-            <div class="summary-value" id="total-good">0.000 kg</div>
-            <div class="summary-sub">Somando todas impressões não descartadas</div>
-          </div>
-          <div class="summary-card">
-            <div class="summary-label">Desperdício (kg) · Erros</div>
-            <div class="summary-value" id="total-waste">0.000 kg</div>
-            <div class="summary-sub">Impressões marcadas como erro total</div>
-          </div>
-          <div class="summary-card">
-            <div class="summary-label">Estoque total atual</div>
-            <div class="summary-value" id="total-stock">0.000 kg</div>
-            <div class="summary-sub">Após uso e desperdício</div>
-          </div>
-        </div>
-
-        <p class="muted" style="margin-top:0.7rem;">
-          Alerta: filamentos com estoque &lt; 4 kg aparecem como “Necessário reposição”.
-        </p>
-
-        <div class="table-wrapper">
-          <table>
-            <thead>
-              <tr>
-                <th>Cor</th>
-                <th>Material</th>
-                <th>Marca</th>
-                <th>Comprado (kg)</th>
-                <th>Usado OK (kg)</th>
-                <th>Desperdício (kg)</th>
-                <th>Estoque (kg)</th>
-                <th>Média/dia (kg)</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody id="report-body"></tbody>
-          </table>
-        </div>
-      </section>
-
-      <!-- RELATÓRIOS VENDAS / KPIs -->
-      <section class="card">
-        <div class="card-header">
-          <div>
-            <h2>Relatórios · Vendas & KPIs</h2>
-            <p>Faturamento, líquido, custo de impressão, margem, marketplaces e produtos.</p>
-          </div>
-          <span class="badge">Vendas</span>
-        </div>
-
-        <div class="summary-row">
-          <div class="summary-card">
-            <div class="summary-label">Faturamento bruto</div>
-            <div class="summary-value" id="kpi-sales-gross">R$ 0,00</div>
-            <div class="summary-sub">Soma de todas as vendas</div>
-          </div>
-          <div class="summary-card">
-            <div class="summary-label">Líquido pré-impressão</div>
-            <div class="summary-value" id="kpi-sales-net">R$ 0,00</div>
-            <div class="summary-sub">Após taxas, imposto, frete e embalagem</div>
-          </div>
-          <div class="summary-card">
-            <div class="summary-label">Custo de impressão</div>
-            <div class="summary-value" id="kpi-print-cost">R$ 0,00</div>
-            <div class="summary-sub">Filamento + energia (impressões vinculadas)</div>
-          </div>
-          <div class="summary-card">
-            <div class="summary-label">Margem após impressão</div>
-            <div class="summary-value" id="kpi-margin">R$ 0,00</div>
-            <div class="summary-sub">Líquido - custo impressão</div>
-          </div>
-        </div>
-
-        <h3>Evolução diária (faturamento x líquido)</h3>
-        <canvas id="revenue-chart" width="800" height="260"></canvas>
-
-        <h3 style="margin-top:1rem;">KPIs por marketplace</h3>
-        <div class="table-wrapper">
-          <table>
-            <thead>
-              <tr>
-                <th>Marketplace</th>
-                <th>Faturamento (R$)</th>
-                <th>Líquido pré-imp. (R$)</th>
-                <th>Custo impressão (R$)</th>
-                <th>Margem pós-imp. (R$)</th>
-              </tr>
-            </thead>
-            <tbody id="kpi-marketplace-body"></tbody>
-          </table>
-        </div>
-
-        <h3 style="margin-top:1rem;">Produtos mais vendidos</h3>
-        <div class="table-wrapper">
-          <table>
-            <thead>
-              <tr>
-                <th>Produto (SKU · Nome)</th>
-                <th>Qtd vendida</th>
-                <th>Faturamento (R$)</th>
-                <th>Líquido pré-imp. (R$)</th>
-              </tr>
-            </thead>
-            <tbody id="kpi-products-body"></tbody>
-          </table>
-        </div>
-      </section>
+        </section>
+      </main>
     </div>
   </div>
 
-  
-<script type="module">
-  import { loadStateFromRemote, saveStateToRemote } from "./firestore.js";
+  <!-- JS: LÓGICA DO SISTEMA -->
+  <script type="module">
+    import { db } from "./firebase.js";
+    import {
+      collection,
+      addDoc,
+      updateDoc,
+      deleteDoc,
+      doc,
+      onSnapshot,
+      query,
+      where,
+      orderBy
+    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-  // mesma chave que você já usa (mantemos compatibilidade)
-  const STORAGE_KEY = "productionSystem_v4_seeded";
+    // === Alternância entre abas ===
+    const tabs = document.querySelectorAll('.nav-item');
+    const tabPanels = document.querySelectorAll('.tab-panel');
 
-  async function loadState() {
-    try {
-      const remote = await loadStateFromRemote();
-      if (remote) {
-        state.filaments = remote.filaments;
-        state.products  = remote.products;
-        state.orders    = remote.orders;
-        state.prints    = remote.prints;
-        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e){}
-        if (typeof renderAll === "function") renderAll();
-        return;
-      }
-    } catch (e) {
-      console.warn("Erro ao buscar state remoto -> fallback para localStorage", e);
-    }
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        if (parsed) {
-          if (Array.isArray(parsed.filaments)) state.filaments = parsed.filaments;
-          if (Array.isArray(parsed.products))  state.products  = parsed.products;
-          if (Array.isArray(parsed.orders))    state.orders    = parsed.orders;
-          if (Array.isArray(parsed.prints))    state.prints    = parsed.prints;
-          if (typeof renderAll === "function") renderAll();
-          return;
-        }
-      }
-    } catch (e) {
-      console.warn("Erro ao ler localStorage:", e);
-    }
-    try {
-      state.filaments = initialFilaments.map(f => ({ ...f }));
-      state.products  = initialProducts.map(p => ({ ...p }));
-      state.orders = [];
-      state.prints = [];
-      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e){}
-      if (typeof renderAll === "function") renderAll();
-    } catch (e) {
-      console.error("Erro ao inicializar dados locais:", e);
-    }
-  }
+    tabs.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const tab = btn.dataset.tab;
 
-  async function saveState() {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    } catch (e) {
-      console.error("Erro ao salvar no localStorage:", e);
-    }
-    try {
-      saveStateToRemote(state).then(ok => {
-        if (!ok) console.warn("Não foi possível salvar state no Firestore agora.");
-      }).catch(err => {
-        console.warn("saveStateToRemote erro:", err);
-      });
-    } catch (e) {
-      console.warn("Erro ao iniciar saveStateToRemote:", e);
-    }
-  }
+        tabs.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
 
-  window.loadState = loadState;
-  window.saveState = saveState;
-  window.saveStateToRemote = saveStateToRemote;
-  window.loadStateFromRemote = loadStateFromRemote;
-</script>
-
-<!-- WARNING: automatic removal of original loadState/saveState did not find any matches. If duplicates remain, the injected module may be overridden by existing functions. -->
-
-<script>
-    const STORAGE_KEY = "productionSystem_v4_seeded";
-    const energiaKwh = 0.2;
-    const precoKwh = 0.95;
-    const TAX_IMPOSTO = 12.5;
-    const EMBALAGEM_FIXA = 1.5;
-
-    const defaultFeeByMarketplace = {
-      "Mercado Livre": 12.5,
-      "Shopee": 20,
-      "Amazon": 12,
-      "Magalu": 21,
-      "Loja própria": 0,
-      "Outros": 0
-    };
-
-    const defaultShippingByMarketplace = (mkt, salePrice) => {
-      salePrice = salePrice || 0;
-      if (mkt === "Mercado Livre") {
-        return salePrice >= 79 ? 17.95 : 6.5;
-      }
-      if (mkt === "Shopee") return 4;
-      if (mkt === "Amazon") return 10;
-      if (mkt === "Magalu") return 5;
-      return 0;
-    };
-
-    // Dados iniciais (os que você mandou)
-    const initialFilaments = [
-      { id: "fil_offwhite", color: "OFF WHITE", material: "PLA", brand: "FULLJOY",  pricePerKg: 71.18, totalPurchasedKg: 4.000 },
-      { id: "fil_dourado",  color: "DOURADO",   material: "PLA", brand: "CREALITY", pricePerKg: 89.10, totalPurchasedKg: 3.000 },
-      { id: "fil_cinza",    color: "CINZA",     material: "PLA", brand: "TINMORRY", pricePerKg: 68.94, totalPurchasedKg: 3.000 },
-      { id: "fil_preto",    color: "PRETO",     material: "PLA", brand: "TINMORRY", pricePerKg: 68.94, totalPurchasedKg: 10.000 },
-      { id: "fil_branco",   color: "BRANCO",    material: "PLA", brand: "FULLJOY",  pricePerKg: 71.19, totalPurchasedKg: 3.000 },
-      { id: "fil_bege_cauc",color: "BEGE CAUCASIANO", material: "PLA", brand: "F3D", pricePerKg: 101.83, totalPurchasedKg: 7.570 },
-      { id: "fil_verde",    color: "VERDE",     material: "PLA", brand: "F3D",      pricePerKg: 101.83, totalPurchasedKg: 0.900 },
-      { id: "fil_bege",     color: "BEGE",      material: "PLA", brand: "3DFILA",   pricePerKg: 74.00, totalPurchasedKg: 14.000 },
-      { id: "fil_branco_sujo", color: "BRANCO SUJO", material: "PLA", brand: "3DFILA", pricePerKg: 74.00, totalPurchasedKg: 6.000 },
-      { id: "fil_branco_gesso", color: "BRANCO GESSO", material: "PLA", brand: "3DFILA", pricePerKg: 74.00, totalPurchasedKg: 3.600 },
-      { id: "fil_granito",  color: "GRANITO",   material: "PLA", brand: "F3D",      pricePerKg: 102.00, totalPurchasedKg: 8.000 }
-    ];
-
-    const initialProducts = [
-      { id: "prod_1",  sku: "1UVASOSONDULADOS",   name: "VASO ONDULADO",           defaultColor: "", avgPrintCost: 0 },
-      { id: "prod_2",  sku: "1UCUBOGEOMETRICO",   name: "CUBO GEOMETRICO",         defaultColor: "", avgPrintCost: 0 },
-      { id: "prod_3",  sku: "1UESCMODERN",        name: "FIBONACCI",               defaultColor: "", avgPrintCost: 0 },
-      { id: "prod_4",  sku: "1UVASOIRMAO",        name: "VASO MONACO",             defaultColor: "", avgPrintCost: 0 },
-      { id: "prod_5",  sku: "1UFAMILIA3D",        name: "FAMILIA BONECO",          defaultColor: "", avgPrintCost: 0 },
-      { id: "prod_6",  sku: "1UROSTOMULHER",      name: "ROSTO FEMININO",          defaultColor: "", avgPrintCost: 0 },
-      { id: "prod_7",  sku: "1ULIVROVASO",        name: "LEITOR E VASO",           defaultColor: "", avgPrintCost: 0 },
-      { id: "prod_8",  sku: "1UAMORETERNO",       name: "CASAMENTO ESCULTURA",     defaultColor: "", avgPrintCost: 0 },
-      { id: "prod_9",  sku: "1ULACOSETERNOS1",    name: "LAÇOS ETERNOS 1 FILHO",   defaultColor: "", avgPrintCost: 0 },
-      { id: "prod_10", sku: "1UMULHERELEGANTE",   name: "MULHER ELEGANTE",         defaultColor: "", avgPrintCost: 0 },
-      { id: "prod_11", sku: "1UKITVASOSBOHO",     name: "VASOS BOHO",              defaultColor: "", avgPrintCost: 0 },
-      { id: "prod_12", sku: "1UMULHEREGATO",      name: "MULHER E GATO",           defaultColor: "", avgPrintCost: 0 },
-      { id: "prod_13", sku: "1ULEAO",             name: "LEAO LUXO",               defaultColor: "", avgPrintCost: 0 },
-      { id: "prod_14", sku: "1ULACOSETERNOS2",    name: "LAÇOS ETERNOS 2 FILHOS",  defaultColor: "", avgPrintCost: 0 },
-      { id: "prod_15", sku: "1ULACOSETERNOS3",    name: "LAÇOS ETERNOS 3 FILHOS",  defaultColor: "", avgPrintCost: 0 },
-      { id: "prod_16", sku: "1UKITESTATUALIVRO",  name: "LEITOR VASO E PENSADOR",  defaultColor: "", avgPrintCost: 0 },
-      { id: "prod_17", sku: "1UAGUIA",            name: "AGUIA",                   defaultColor: "", avgPrintCost: 0 },
-      { id: "prod_18", sku: "1UBUÇOMINI",         name: "2 ROSTOS",                defaultColor: "", avgPrintCost: 0 },
-      { id: "prod_19", sku: "1UFAMILIA3D_1",      name: "FAMILIA 1 FILHO",         defaultColor: "", avgPrintCost: 0 },
-      { id: "prod_20", sku: "1UFAMILIA3D_2",      name: "FAMILIA 2 FILHOS",        defaultColor: "", avgPrintCost: 0 },
-      { id: "prod_21", sku: "1UFAMILIA3D_3",      name: "FAMILIA 3 FILHOS",        defaultColor: "", avgPrintCost: 0 },
-      { id: "prod_22", sku: "1ULOTUSKIT",         name: "LÓTUS FLOR",              defaultColor: "", avgPrintCost: 0 }
-    ];
-
-    const state = {
-      filaments: [],
-      products: [],
-      orders: [],
-      prints: []
-    };
-
-    function loadState() {
-      try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if (raw) {
-          const parsed = JSON.parse(raw);
-          if (parsed) {
-            if (Array.isArray(parsed.filaments)) state.filaments = parsed.filaments;
-            if (Array.isArray(parsed.products)) state.products = parsed.products;
-            if (Array.isArray(parsed.orders)) state.orders = parsed.orders;
-            if (Array.isArray(parsed.prints)) state.prints = parsed.prints;
-            return;
-          }
-        }
-      } catch (e) {
-        console.error("Erro ao carregar dados:", e);
-      }
-      // Se não tiver nada salvo, carrega os dados iniciais que você mandou
-      state.filaments = initialFilaments.map(f => ({ ...f }));
-      state.products  = initialProducts.map(p => ({ ...p }));
-      state.orders = [];
-      state.prints = [];
-      saveState();
-    }
-
-    function saveState() {
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-      } catch (e) {
-        console.error("Erro ao salvar dados:", e);
-      }
-    }
-
-    function generateId() {
-      return Date.now().toString(36) + Math.random().toString(36).slice(2);
-    }
-    function formatKg(kg) { return (kg || 0).toFixed(3); }
-    function formatMoney(v) { return "R$ " + (v || 0).toFixed(2); }
-    function formatDate(iso) {
-      if (!iso) return "";
-      const d = new Date(iso);
-      if (Number.isNaN(d.getTime())) return "";
-      return d.toLocaleString("pt-BR");
-    }
-    function formatDateOnly(iso) {
-      if (!iso) return "";
-      const d = new Date(iso);
-      if (Number.isNaN(d.getTime())) return "";
-      return d.toLocaleDateString("pt-BR");
-    }
-    function parseNumber(value) {
-      if (value === "" || value == null) return 0;
-      const v = parseFloat(String(value).replace(",", "."));
-      return Number.isNaN(v) ? 0 : v;
-    }
-
-    function computeFilamentStats(filamentId) {
-      const filament = state.filaments.find(f => f.id === filamentId);
-      if (!filament) return { purchased: 0, usedGoodKg: 0, wastedKg: 0, totalUsedKg: 0 };
-      const purchased = filament.totalPurchasedKg || 0;
-      let usedGoodKg = 0;
-      let wastedKg = 0;
-
-      state.prints.forEach(p => {
-        if (p.filamentId !== filamentId) return;
-        const kg = (p.grams || 0) / 1000;
-        if (p.status === "erro") wastedKg += kg; else usedGoodKg += kg;
-      });
-
-      const totalUsedKg = usedGoodKg + wastedKg;
-      return { purchased, usedGoodKg, wastedKg, totalUsedKg };
-    }
-
-    function computeFilamentStockKg(filamentId) {
-      const stats = computeFilamentStats(filamentId);
-      let stock = stats.purchased - stats.totalUsedKg;
-      if (stock < 0) stock = 0;
-      return stock;
-    }
-
-    function computeProductStock(productId) {
-      let produced = 0;
-      state.prints.forEach(p => {
-        if (p.mode !== "estoque" || p.status !== "sucesso" || !Array.isArray(p.stockItems)) return;
-        p.stockItems.forEach(item => {
-          if (item.productId === productId) produced += item.quantity || 0;
+        tabPanels.forEach(panel => {
+          panel.style.display = (panel.id === `tab-${tab}`) ? 'block' : 'none';
         });
       });
-      let sold = 0;
-      state.orders.forEach(o => {
-        if (o.productId === productId && o.productionStatus === "concluido") {
-          sold += o.quantity || 1;
-        }
+    });
+
+    // Helper para badge de marketplace
+    function marketplaceTag(marketplace) {
+      switch (marketplace) {
+        case "mercadolivre":
+          return '<span class="tag tag-ml">ML</span>';
+        case "shopee":
+          return '<span class="tag tag-shopee">Shopee</span>';
+        case "amazon":
+          return '<span class="tag tag-amazon">Amazon</span>';
+        case "magalu":
+          return '<span class="tag tag-magalu">Magalu</span>';
+        default:
+          return '<span class="tag">Outro</span>';
+      }
+    }
+
+    // Helper status
+    function statusPill(status) {
+      const map = {
+        afazer: { cls: "status-todo", label: "A FAZER" },
+        emimpressao: { cls: "status-printing", label: "EM IMPRESSÃO" },
+        pronto: { cls: "status-ready", label: "PRONTO" },
+        enviado: { cls: "status-sent", label: "ENVIADO" },
+        cancelado: { cls: "status-cancelled", label: "CANCELADO" },
+        devolvido: { cls: "status-returned", label: "DEVOLVIDO" },
+      };
+      const info = map[status] || { cls: "status-todo", label: status || "?" };
+      return `<span class="status-pill ${info.cls}">${info.label}</span>`;
+    }
+
+    // === FILAMENTOS ===
+    const filTableBody = document.querySelector("#tabelaFilamentos tbody");
+    const filResumo = document.getElementById("filamentosResumo");
+    const filSelectVenda = document.getElementById("venCor");
+    const filSelectImp = document.getElementById("impCor");
+
+    document.getElementById("btnAddFilament").addEventListener("click", async () => {
+      const cor = document.getElementById("filCor").value.trim();
+      const material = document.getElementById("filMaterial").value.trim();
+      const marca = document.getElementById("filMarca").value.trim();
+      const precoKg = parseFloat(document.getElementById("filPrecoKg").value || "0");
+      const qtdComprada = parseFloat(document.getElementById("filQtdComprada").value || "0");
+      const estoqueKg = parseFloat(document.getElementById("filEstoque").value || "0");
+
+      if (!cor) {
+        alert("Informe pelo menos a cor do filamento.");
+        return;
+      }
+
+      await addDoc(collection(db, "filaments"), {
+        cor,
+        material,
+        marca,
+        precoKg,
+        qtdComprada,
+        estoqueKg,
+        createdAt: Date.now(),
       });
-      const stock = produced - sold;
-      return stock < 0 ? 0 : stock;
-    }
 
-    function computePrintCosts(print) {
-      const filament = state.filaments.find(f => f.id === print.filamentId);
-      const pricePerKg = filament ? filament.pricePerKg || 0 : 0;
-      const kg = (print.grams || 0) / 1000;
-      const costFilament = kg * pricePerKg;
-      const costEnergy = energiaKwh * ((print.timeMinutes || 0) / 60) * precoKwh;
-      const total = costFilament + costEnergy;
-      return { costFilament, costEnergy, total };
-    }
+      document.getElementById("filCor").value = "";
+      document.getElementById("filMaterial").value = "";
+      document.getElementById("filMarca").value = "";
+      document.getElementById("filPrecoKg").value = "";
+      document.getElementById("filQtdComprada").value = "";
+      document.getElementById("filEstoque").value = "";
+    });
 
-    function computeOrderNet(order) {
-      const sale = order.salePrice || 0;
-      const feePercent = order.feePercent || 0;
-      const ship = order.shippingCost || 0;
-      const fee = sale * feePercent / 100;
-      const imposto = sale * TAX_IMPOSTO / 100;
-      const embalagem = EMBALAGEM_FIXA;
-      const net = sale - fee - imposto - ship - embalagem;
-      return { fee, imposto, embalagem, net };
-    }
+    onSnapshot(collection(db, "filaments"), (snapshot) => {
+      filTableBody.innerHTML = "";
+      filSelectVenda.innerHTML = '<option value="">Selecione (vem dos filamentos)</option>';
+      filSelectImp.innerHTML = '<option value="">Selecione</option>';
 
-    function computeOrderPrintCost(orderId) {
+      let totalComprado = 0;
+      let totalEstoque = 0;
+      snapshot.forEach((docSnap) => {
+        const f = docSnap.data();
+        totalComprado += f.qtdComprada || 0;
+        totalEstoque += f.estoqueKg || 0;
+
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${f.cor}</td>
+          <td>${f.material || ""}</td>
+          <td>${f.marca || ""}</td>
+          <td>${(f.precoKg || 0).toFixed(2)}</td>
+          <td>${(f.qtdComprada || 0).toFixed(3)}</td>
+          <td>${(f.estoqueKg || 0).toFixed(3)}</td>
+          <td>
+            <button class="btn-ghost" data-edit-fil="${docSnap.id}">✏️</button>
+            <button class="btn-danger" data-del-fil="${docSnap.id}">🗑</button>
+          </td>
+        `;
+        filTableBody.appendChild(tr);
+
+        const opt = document.createElement("option");
+        opt.value = f.cor;
+        opt.textContent = f.cor;
+        filSelectVenda.appendChild(opt);
+
+        const opt2 = document.createElement("option");
+        opt2.value = f.cor;
+        opt2.textContent = f.cor;
+        filSelectImp.appendChild(opt2);
+      });
+
+      filResumo.textContent = `Comprado: ${totalComprado.toFixed(3)} kg • Estoque: ${totalEstoque.toFixed(3)} kg`;
+
+      // KPIs
+      document.getElementById("kpiFilamentoComprado").textContent = totalComprado.toFixed(3);
+      document.getElementById("kpiFilamentoEstoque").textContent = totalEstoque.toFixed(3);
+    });
+
+    filTableBody.addEventListener("click", async (e) => {
+      const delId = e.target.getAttribute("data-del-fil");
+      const editId = e.target.getAttribute("data-edit-fil");
+
+      if (delId) {
+        if (confirm("Excluir este filamento?")) {
+          await deleteDoc(doc(db, "filaments", delId));
+        }
+      } else if (editId) {
+        const ref = doc(db, "filaments", editId);
+        const snap = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js")
+          .then(m => m.getDoc(ref));
+        if (snap.exists()) {
+          const f = snap.data();
+          document.getElementById("filCor").value = f.cor || "";
+          document.getElementById("filMaterial").value = f.material || "";
+          document.getElementById("filMarca").value = f.marca || "";
+          document.getElementById("filPrecoKg").value = f.precoKg || 0;
+          document.getElementById("filQtdComprada").value = f.qtdComprada || 0;
+          document.getElementById("filEstoque").value = f.estoqueKg || 0;
+
+          if (confirm("Salvar alterações deste filamento?")) {
+            await updateDoc(ref, {
+              cor: document.getElementById("filCor").value.trim(),
+              material: document.getElementById("filMaterial").value.trim(),
+              marca: document.getElementById("filMarca").value.trim(),
+              precoKg: parseFloat(document.getElementById("filPrecoKg").value || "0"),
+              qtdComprada: parseFloat(document.getElementById("filQtdComprada").value || "0"),
+              estoqueKg: parseFloat(document.getElementById("filEstoque").value || "0"),
+            });
+          }
+        }
+      }
+    });
+
+    // === PRODUTOS ===
+    const prodTableBody = document.querySelector("#tabelaProdutos tbody");
+    const prodResumo = document.getElementById("produtosResumo");
+
+    document.getElementById("btnAddProduto").addEventListener("click", async () => {
+      const sku = document.getElementById("prodSku").value.trim();
+      const nome = document.getElementById("prodNome").value.trim();
+      const corPadrao = document.getElementById("prodCorPadrao").value.trim();
+      const custoMedio = parseFloat(document.getElementById("prodCustoMedio").value || "0");
+      const estoque = parseInt(document.getElementById("prodEstoque").value || "0", 10);
+
+      if (!sku) {
+        alert("Informe o SKU do produto.");
+        return;
+      }
+
+      const is3d = sku.toUpperCase().includes("3D");
+
+      await addDoc(collection(db, "products"), {
+        sku,
+        nome,
+        corPadrao,
+        custoMedio,
+        estoque,
+        is3d,
+        createdAt: Date.now(),
+      });
+
+      document.getElementById("prodSku").value = "";
+      document.getElementById("prodNome").value = "";
+      document.getElementById("prodCorPadrao").value = "";
+      document.getElementById("prodCustoMedio").value = "";
+      document.getElementById("prodEstoque").value = "";
+    });
+
+    onSnapshot(collection(db, "products"), (snapshot) => {
+      prodTableBody.innerHTML = "";
       let total = 0;
-      state.prints.forEach(p => {
-        if (!Array.isArray(p.orderIds) || !p.orderIds.includes(orderId)) return;
-        if (p.status !== "sucesso" && p.status !== "erro_parcial") return;
-        const costs = computePrintCosts(p);
-        const divisor = p.orderIds.length || 1;
-        total += costs.total / divisor;
-      });
-      return total;
-    }
-
-    function initTabs() {
-      const buttons = document.querySelectorAll(".tab-btn");
-      const tabs = {
-        cadastros: document.getElementById("tab-cadastros"),
-        fila: document.getElementById("tab-fila"),
-        relatorios: document.getElementById("tab-relatorios")
-      };
-      buttons.forEach(btn => {
-        btn.addEventListener("click", () => {
-          buttons.forEach(b => b.classList.remove("active"));
-          btn.classList.add("active");
-          const tab = btn.getAttribute("data-tab");
-          Object.keys(tabs).forEach(key => {
-            tabs[key].classList.toggle("active", key === tab);
-          });
-        });
-      });
-    }
-
-    function getUniqueColorsFromFilaments() {
-      const set = new Set();
-      state.filaments.forEach(f => { if (f.color) set.add(f.color); });
-      return Array.from(set);
-    }
-
-    function renderColorSelects() {
-      const colorSelectProduct = document.getElementById("product-color");
-      const colorSelectOrder = document.getElementById("order-color");
-      const colors = getUniqueColorsFromFilaments();
-
-      [colorSelectProduct, colorSelectOrder].forEach((select, idx) => {
-        select.innerHTML = "";
-        const optNone = document.createElement("option");
-        optNone.value = "";
-        optNone.textContent = idx === 0 ? "Sem cor padrão" : (colors.length ? "Selecione a cor" : "Cadastre filamentos primeiro");
-        select.appendChild(optNone);
-        colors.forEach(c => {
-          const opt = document.createElement("option");
-          opt.value = c;
-          opt.textContent = c;
-          select.appendChild(opt);
-        });
-        select.disabled = idx === 1 && !colors.length;
-      });
-    }
-
-    function renderProductSelects() {
-      const productSelectOrder = document.getElementById("order-product");
-      productSelectOrder.innerHTML = "";
-      const placeholder = document.createElement("option");
-      placeholder.value = "";
-      placeholder.textContent = state.products.length ? "Selecione um produto" : "Cadastre produtos primeiro";
-      productSelectOrder.appendChild(placeholder);
-      productSelectOrder.disabled = !state.products.length;
-
-      state.products.forEach(p => {
-        const opt = document.createElement("option");
-        opt.value = p.id;
-        opt.textContent = `${p.sku} · ${p.name}`;
-        productSelectOrder.appendChild(opt);
-      });
-    }
-
-    function renderFilamentSelectForPrints() {
-      const select = document.getElementById("print-filament");
-      select.innerHTML = "";
-      if (!state.filaments.length) {
-        const opt = document.createElement("option");
-        opt.value = "";
-        opt.textContent = "Cadastre filamentos primeiro";
-        select.appendChild(opt);
-        select.disabled = true;
-        return;
-      }
-      select.disabled = false;
-      const placeholder = document.createElement("option");
-      placeholder.value = "";
-      placeholder.disabled = true;
-      placeholder.selected = true;
-      placeholder.textContent = "Selecione um filamento";
-      select.appendChild(placeholder);
-      state.filaments.forEach(f => {
-        const opt = document.createElement("option");
-        opt.value = f.id;
-        opt.textContent = `${f.color} · ${f.material}${f.brand ? " · " + f.brand : ""}`;
-        select.appendChild(opt);
-      });
-    }
-
-    function renderOrderSelectForPrints() {
-      const select = document.getElementById("print-orders");
-      select.innerHTML = "";
-      const pending = state.orders.filter(o => o.productionStatus !== "concluido");
-
-      if (!pending.length) {
-        const opt = document.createElement("option");
-        opt.value = "";
-        opt.textContent = "Nenhum pedido pendente na fila";
-        select.appendChild(opt);
-        select.disabled = true;
-        return;
-      }
-      select.disabled = false;
-
-      pending.slice().sort((a,b)=> new Date(a.shipByDate || 0) - new Date(b.shipByDate || 0)).forEach(o => {
-        const product = state.products.find(p => p.id === o.productId);
-        const { net } = computeOrderNet(o);
-        const opt = document.createElement("option");
-        opt.value = o.id;
-        opt.textContent = `${o.shipByDate ? formatDateOnly(o.shipByDate) : "s/ data"} · ${product ? product.sku : "?"} · ${o.color || ""} · ${o.marketplace} · Líq: ${net.toFixed(2)}`;
-        select.appendChild(opt);
-      });
-    }
-
-    function renderFilamentList() {
-      const tbody = document.getElementById("filament-list-body");
-      tbody.innerHTML = "";
-      if (!state.filaments.length) {
-        const tr = document.createElement("tr");
-        const td = document.createElement("td");
-        td.colSpan = 7;
-        td.className = "muted";
-        td.textContent = "Nenhum filamento cadastrado.";
-        tr.appendChild(td);
-        tbody.appendChild(tr);
-        return;
-      }
-
-      state.filaments.forEach(f => {
-        const stats = computeFilamentStats(f.id);
-        const stockKg = computeFilamentStockKg(f.id);
+      snapshot.forEach((docSnap) => {
+        const p = docSnap.data();
+        total++;
 
         const tr = document.createElement("tr");
-        const colorTd = document.createElement("td");
-        colorTd.textContent = f.color;
-        tr.appendChild(colorTd);
-
-        const matTd = document.createElement("td");
-        matTd.textContent = f.material;
-        tr.appendChild(matTd);
-
-        const brandTd = document.createElement("td");
-        brandTd.textContent = f.brand || "-";
-        tr.appendChild(brandTd);
-
-        const priceTd = document.createElement("td");
-        priceTd.textContent = (f.pricePerKg || 0).toFixed(2);
-        tr.appendChild(priceTd);
-
-        const purchasedTd = document.createElement("td");
-        purchasedTd.textContent = formatKg(stats.purchased);
-        tr.appendChild(purchasedTd);
-
-        const stockTd = document.createElement("td");
-        stockTd.textContent = formatKg(stockKg);
-        tr.appendChild(stockTd);
-
-        const actionsTd = document.createElement("td");
-        const editBtn = document.createElement("button");
-        editBtn.type = "button";
-        editBtn.className = "btn-small btn-edit";
-        editBtn.textContent = "Editar";
-        editBtn.onclick = () => editFilament(f.id);
-
-        const delBtn = document.createElement("button");
-        delBtn.type = "button";
-        delBtn.className = "btn-small btn-danger";
-        delBtn.style.marginLeft = "0.4rem";
-        delBtn.textContent = "Excluir";
-        delBtn.onclick = () => deleteFilament(f.id);
-
-        actionsTd.appendChild(editBtn);
-        actionsTd.appendChild(delBtn);
-        tr.appendChild(actionsTd);
-
-        tbody.appendChild(tr);
+        tr.innerHTML = `
+          <td>${p.sku}</td>
+          <td>${p.nome || ""}</td>
+          <td>${p.corPadrao || ""}</td>
+          <td>${(p.custoMedio || 0).toFixed(2)}</td>
+          <td>${p.estoque || 0}</td>
+          <td>${p.is3d ? "Sim" : "Não"}</td>
+          <td>
+            <button class="btn-ghost" data-edit-prod="${docSnap.id}">✏️</button>
+            <button class="btn-danger" data-del-prod="${docSnap.id}">🗑</button>
+          </td>
+        `;
+        prodTableBody.appendChild(tr);
       });
-    }
 
-    function renderProductList() {
-      const tbody = document.getElementById("product-list-body");
-      tbody.innerHTML = "";
-      if (!state.products.length) {
-        const tr = document.createElement("tr");
-        const td = document.createElement("td");
-        td.colSpan = 6;
-        td.className = "muted";
-        td.textContent = "Nenhum produto cadastrado.";
-        tr.appendChild(td);
-        tbody.appendChild(tr);
-        return;
-      }
+      prodResumo.textContent = `${total} produto(s)`;
+    });
 
-      state.products.forEach(p => {
-        const tr = document.createElement("tr");
-        const skuTd = document.createElement("td");
-        skuTd.textContent = p.sku;
-        tr.appendChild(skuTd);
+    prodTableBody.addEventListener("click", async (e) => {
+      const delId = e.target.getAttribute("data-del-prod");
+      const editId = e.target.getAttribute("data-edit-prod");
 
-        const nameTd = document.createElement("td");
-        nameTd.textContent = p.name;
-        tr.appendChild(nameTd);
+      if (delId) {
+        if (confirm("Excluir este produto?")) {
+          await deleteDoc(doc(db, "products", delId));
+        }
+      } else if (editId) {
+        const ref = doc(db, "products", editId);
+        const snap = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js")
+          .then(m => m.getDoc(ref));
+        if (snap.exists()) {
+          const p = snap.data();
+          document.getElementById("prodSku").value = p.sku || "";
+          document.getElementById("prodNome").value = p.nome || "";
+          document.getElementById("prodCorPadrao").value = p.corPadrao || "";
+          document.getElementById("prodCustoMedio").value = p.custoMedio || 0;
+          document.getElementById("prodEstoque").value = p.estoque || 0;
 
-        const colorTd = document.createElement("td");
-        colorTd.textContent = p.defaultColor || "-";
-        tr.appendChild(colorTd);
-
-        const costTd = document.createElement("td");
-        costTd.textContent = (p.avgPrintCost || 0).toFixed(2);
-        tr.appendChild(costTd);
-
-        const stockTd = document.createElement("td");
-        stockTd.textContent = computeProductStock(p.id);
-        tr.appendChild(stockTd);
-
-        const actionsTd = document.createElement("td");
-        const editBtn = document.createElement("button");
-        editBtn.type = "button";
-        editBtn.className = "btn-small btn-edit";
-        editBtn.textContent = "Editar";
-        editBtn.onclick = () => editProduct(p.id);
-
-        const delBtn = document.createElement("button");
-        delBtn.type = "button";
-        delBtn.className = "btn-small btn-danger";
-        delBtn.style.marginLeft = "0.4rem";
-        delBtn.textContent = "Excluir";
-        delBtn.onclick = () => deleteProduct(p.id);
-
-        actionsTd.appendChild(editBtn);
-        actionsTd.appendChild(delBtn);
-        tr.appendChild(actionsTd);
-
-        tbody.appendChild(tr);
-      });
-    }
-
-    function renderOrders() {
-      const tbody = document.getElementById("orders-body");
-      tbody.innerHTML = "";
-      if (!state.orders.length) {
-        const tr = document.createElement("tr");
-        const td = document.createElement("td");
-        td.colSpan = 12;
-        td.className = "muted";
-        td.textContent = "Nenhuma venda/pedido cadastrado.";
-        tr.appendChild(td);
-        tbody.appendChild(tr);
-        return;
-      }
-
-      state.orders.slice().sort((a,b)=> new Date(b.saleDate || b.createdAt || 0) - new Date(a.saleDate || a.createdAt || 0)).forEach(o => {
-        const product = state.products.find(p => p.id === o.productId);
-        const { net } = computeOrderNet(o);
-
-        const tr = document.createElement("tr");
-        const saleDateTd = document.createElement("td");
-        saleDateTd.textContent = o.saleDate ? formatDateOnly(o.saleDate) : "-";
-        tr.appendChild(saleDateTd);
-
-        const prodTd = document.createElement("td");
-        prodTd.textContent = product ? `${product.sku} · ${product.name}` : "Produto removido";
-        tr.appendChild(prodTd);
-
-        const colorTd = document.createElement("td");
-        colorTd.textContent = o.color || "-";
-        tr.appendChild(colorTd);
-
-        const mktTd = document.createElement("td");
-        mktTd.textContent = o.marketplace || "-";
-        tr.appendChild(mktTd);
-
-        const saleTd = document.createElement("td");
-        saleTd.textContent = (o.salePrice || 0).toFixed(2);
-        tr.appendChild(saleTd);
-
-        const feeTd = document.createElement("td");
-        feeTd.textContent = (o.feePercent || 0).toFixed(2);
-        tr.appendChild(feeTd);
-
-        const taxTd = document.createElement("td");
-        taxTd.textContent = TAX_IMPOSTO.toFixed(2);
-        tr.appendChild(taxTd);
-
-        const shipTd = document.createElement("td");
-        shipTd.textContent = (o.shippingCost || 0).toFixed(2);
-        tr.appendChild(shipTd);
-
-        const netTd = document.createElement("td");
-        netTd.textContent = net.toFixed(2);
-        tr.appendChild(netTd);
-
-        const shipDateTd = document.createElement("td");
-        shipDateTd.textContent = o.shipByDate ? formatDateOnly(o.shipByDate) : "-";
-        tr.appendChild(shipDateTd);
-
-        const statusTd = document.createElement("td");
-        const chip = document.createElement("span");
-        chip.className = "chip chip-info";
-        const dot = document.createElement("span");
-        dot.className = "chip-dot";
-        const text = document.createElement("span");
-        let statusName = "não concluído";
-        if (o.productionStatus === "em_impressao") statusName = "em impressão";
-        if (o.productionStatus === "concluido") statusName = "concluído";
-        text.textContent = statusName;
-        chip.appendChild(dot);
-        chip.appendChild(text);
-        statusTd.appendChild(chip);
-        tr.appendChild(statusTd);
-
-        const actionsTd = document.createElement("td");
-        const editBtn = document.createElement("button");
-        editBtn.type = "button";
-        editBtn.className = "btn-small btn-edit";
-        editBtn.textContent = "Editar";
-        editBtn.onclick = () => editOrder(o.id);
-
-        const delBtn = document.createElement("button");
-        delBtn.type = "button";
-        delBtn.className = "btn-small btn-danger";
-        delBtn.style.marginLeft = "0.4rem";
-        delBtn.textContent = "Excluir";
-        delBtn.onclick = () => deleteOrder(o.id);
-
-        actionsTd.appendChild(editBtn);
-        actionsTd.appendChild(delBtn);
-        tr.appendChild(actionsTd);
-
-        tbody.appendChild(tr);
-      });
-    }
-
-    function renderQueue() {
-      const tbody = document.getElementById("queue-body");
-      tbody.innerHTML = "";
-      const pending = state.orders.filter(o => o.productionStatus !== "concluido");
-      if (!pending.length) {
-        const tr = document.createElement("tr");
-        const td = document.createElement("td");
-        td.colSpan = 6;
-        td.className = "muted";
-        td.textContent = "Nenhum pedido pendente na fila.";
-        tr.appendChild(td);
-        tbody.appendChild(tr);
-        return;
-      }
-
-      pending.slice().sort((a,b)=> new Date(a.shipByDate || 0) - new Date(b.shipByDate || 0)).forEach(o => {
-        const product = state.products.find(p => p.id === o.productId);
-        const { net } = computeOrderNet(o);
-        const tr = document.createElement("tr");
-
-        const shipTd = document.createElement("td");
-        shipTd.textContent = o.shipByDate ? formatDateOnly(o.shipByDate) : "-";
-        tr.appendChild(shipTd);
-
-        const prodTd = document.createElement("td");
-        prodTd.textContent = product ? `${product.sku} · ${product.name}` : "Produto removido";
-        tr.appendChild(prodTd);
-
-        const colorTd = document.createElement("td");
-        colorTd.textContent = o.color || "-";
-        tr.appendChild(colorTd);
-
-        const mktTd = document.createElement("td");
-        mktTd.textContent = o.marketplace || "-";
-        tr.appendChild(mktTd);
-
-        const netTd = document.createElement("td");
-        netTd.textContent = net.toFixed(2);
-        tr.appendChild(netTd);
-
-        const statusTd = document.createElement("td");
-        const chip = document.createElement("span");
-        chip.className = "chip chip-info";
-        const dot = document.createElement("span");
-        dot.className = "chip-dot";
-        const text = document.createElement("span");
-        let statusName = "não concluído";
-        if (o.productionStatus === "em_impressao") statusName = "em impressão";
-        if (o.productionStatus === "concluido") statusName = "concluído";
-        text.textContent = statusName;
-        chip.appendChild(dot);
-        chip.appendChild(text);
-        statusTd.appendChild(chip);
-        tr.appendChild(statusTd);
-
-        tbody.appendChild(tr);
-      });
-    }
-
-    function renderPrints() {
-      const tbody = document.getElementById("prints-body");
-      tbody.innerHTML = "";
-      if (!state.prints.length) {
-        const tr = document.createElement("tr");
-        const td = document.createElement("td");
-        td.colSpan = 11;
-        td.className = "muted";
-        td.textContent = "Nenhuma impressão registrada.";
-        tr.appendChild(td);
-        tbody.appendChild(tr);
-        return;
-      }
-
-      state.prints.slice().sort((a,b)=> new Date(b.createdAt || 0) - new Date(a.createdAt || 0)).forEach(p => {
-        const filament = state.filaments.find(f => f.id === p.filamentId);
-        const costs = computePrintCosts(p);
-
-        const tr = document.createElement("tr");
-        const dateTd = document.createElement("td");
-        dateTd.textContent = formatDate(p.createdAt);
-        tr.appendChild(dateTd);
-
-        const nameTd = document.createElement("td");
-        nameTd.textContent = p.name || "-";
-        tr.appendChild(nameTd);
-
-        const filTd = document.createElement("td");
-        filTd.textContent = filament ? `${filament.color} · ${filament.material}` : "(filamento removido)";
-        tr.appendChild(filTd);
-
-        const gramsTd = document.createElement("td");
-        gramsTd.textContent = (p.grams || 0).toFixed(2);
-        tr.appendChild(gramsTd);
-
-        const timeTd = document.createElement("td");
-        timeTd.textContent = (p.timeMinutes || 0) + " min";
-        tr.appendChild(timeTd);
-
-        const statusTd = document.createElement("td");
-        const chip = document.createElement("span");
-        let chipClass = "chip chip-info";
-        let statusText = "em impressão";
-        if (p.status === "sucesso") { chipClass = "chip chip-success"; statusText = "sucesso"; }
-        if (p.status === "erro") { chipClass = "chip chip-error"; statusText = "erro"; }
-        if (p.status === "erro_parcial") { chipClass = "chip chip-warning"; statusText = "erro parcial"; }
-        chip.className = chipClass;
-        const dot = document.createElement("span");
-        dot.className = "chip-dot";
-        const text = document.createElement("span");
-        text.textContent = statusText;
-        chip.appendChild(dot);
-        chip.appendChild(text);
-        statusTd.appendChild(chip);
-        tr.appendChild(statusTd);
-
-        const relTd = document.createElement("td");
-        if (p.mode === "pedidos") {
-          if (p.orderIds && p.orderIds.length) {
-            const labels = p.orderIds.map(id => {
-              const o = state.orders.find(x => x.id === id);
-              const product = o ? state.products.find(pr => pr.id === o.productId) : null;
-              return o && product ? product.sku : "(pedido removido)";
+          if (confirm("Salvar alterações deste produto?")) {
+            const sku = document.getElementById("prodSku").value.trim();
+            const is3d = sku.toUpperCase().includes("3D");
+            await updateDoc(ref, {
+              sku,
+              nome: document.getElementById("prodNome").value.trim(),
+              corPadrao: document.getElementById("prodCorPadrao").value.trim(),
+              custoMedio: parseFloat(document.getElementById("prodCustoMedio").value || "0"),
+              estoque: parseInt(document.getElementById("prodEstoque").value || "0", 10),
+              is3d,
             });
-            relTd.textContent = "Pedidos: " + labels.join(", ");
-          } else {
-            relTd.textContent = "Pedidos: -";
           }
-        } else if (p.mode === "estoque") {
-          if (p.stockItems && p.stockItems.length) {
-            const labels = p.stockItems.map(item => {
-              const prod = state.products.find(pr => pr.id === item.productId);
-              return prod ? `${prod.sku} x${item.quantity}` : "(produto removido)";
-            });
-            relTd.textContent = "Estoque: " + labels.join(", ");
-          } else {
-            relTd.textContent = "Estoque: -";
-          }
-        } else {
-          relTd.textContent = "-";
         }
-        tr.appendChild(relTd);
-
-        const filCostTd = document.createElement("td");
-        filCostTd.textContent = costs.costFilament.toFixed(2);
-        tr.appendChild(filCostTd);
-
-        const energyCostTd = document.createElement("td");
-        energyCostTd.textContent = costs.costEnergy.toFixed(2);
-        tr.appendChild(energyCostTd);
-
-        const totalTd = document.createElement("td");
-        totalTd.textContent = costs.total.toFixed(2);
-        tr.appendChild(totalTd);
-
-        const actionsTd = document.createElement("td");
-        const successBtn = document.createElement("button");
-        successBtn.type = "button";
-        successBtn.className = "btn-small btn-edit";
-        successBtn.textContent = "Sucesso";
-        successBtn.onclick = () => markPrintStatus(p.id, "sucesso");
-
-        const errorBtn = document.createElement("button");
-        errorBtn.type = "button";
-        errorBtn.className = "btn-small btn-danger";
-        errorBtn.style.marginLeft = "0.2rem";
-        errorBtn.textContent = "Erro";
-        errorBtn.onclick = () => markPrintStatus(p.id, "erro");
-
-        const partialBtn = document.createElement("button");
-        partialBtn.type = "button";
-        partialBtn.className = "btn-small btn-secondary";
-        partialBtn.style.marginLeft = "0.2rem";
-        partialBtn.textContent = "Erro parcial";
-        partialBtn.onclick = () => markPrintStatus(p.id, "erro_parcial");
-
-        const delBtn = document.createElement("button");
-        delBtn.type = "button";
-        delBtn.className = "btn-small btn-danger";
-        delBtn.style.marginLeft = "0.4rem";
-        delBtn.textContent = "Excluir";
-        delBtn.onclick = () => deletePrint(p.id);
-
-        actionsTd.appendChild(successBtn);
-        actionsTd.appendChild(errorBtn);
-        actionsTd.appendChild(partialBtn);
-        actionsTd.appendChild(delBtn);
-        tr.appendChild(actionsTd);
-
-        tbody.appendChild(tr);
-      });
-    }
-
-    function renderFilamentReport() {
-      const tbody = document.getElementById("report-body");
-      tbody.innerHTML = "";
-      let totalGood = 0;
-      let totalWaste = 0;
-      let totalStock = 0;
-      const now = Date.now();
-
-      if (!state.filaments.length) {
-        const tr = document.createElement("tr");
-        const td = document.createElement("td");
-        td.colSpan = 9;
-        td.className = "muted";
-        td.textContent = "Nenhum filamento cadastrado para relatório.";
-        tr.appendChild(td);
-        tbody.appendChild(tr);
-      } else {
-        state.filaments.forEach(f => {
-          const stats = computeFilamentStats(f.id);
-          const stock = computeFilamentStockKg(f.id);
-
-          totalGood += stats.usedGoodKg;
-          totalWaste += stats.wastedKg;
-          totalStock += stock;
-
-          let firstUse = null;
-          let lastUse = null;
-          state.prints.forEach(p => {
-            if (p.filamentId !== f.id) return;
-            const t = new Date(p.createdAt || now).getTime();
-            if (!firstUse || t < firstUse) firstUse = t;
-            if (!lastUse || t > lastUse) lastUse = t;
-          });
-
-          let avgPerDay = 0;
-          if (stats.totalUsedKg > 0 && firstUse && lastUse) {
-            const days = Math.max(1, Math.round((lastUse - firstUse) / (1000 * 60 * 60 * 24)) + 1);
-            avgPerDay = stats.totalUsedKg / days;
-          }
-
-          const tr = document.createElement("tr");
-          const colorTd = document.createElement("td");
-          colorTd.textContent = f.color;
-          tr.appendChild(colorTd);
-
-          const matTd = document.createElement("td");
-          matTd.textContent = f.material;
-          tr.appendChild(matTd);
-
-          const brandTd = document.createElement("td");
-          brandTd.textContent = f.brand || "-";
-          tr.appendChild(brandTd);
-
-          const purchasedTd = document.createElement("td");
-          purchasedTd.textContent = formatKg(stats.purchased);
-          tr.appendChild(purchasedTd);
-
-          const usedTd = document.createElement("td");
-          usedTd.textContent = formatKg(stats.usedGoodKg);
-          tr.appendChild(usedTd);
-
-          const wasteTd = document.createElement("td");
-          wasteTd.textContent = formatKg(stats.wastedKg);
-          tr.appendChild(wasteTd);
-
-          const stockTd = document.createElement("td");
-          stockTd.textContent = formatKg(stock);
-          tr.appendChild(stockTd);
-
-          const avgTd = document.createElement("td");
-          avgTd.textContent = formatKg(avgPerDay);
-          tr.appendChild(avgTd);
-
-          const statusTd = document.createElement("td");
-          const chip = document.createElement("span");
-          const dot = document.createElement("span");
-          dot.className = "chip-dot";
-          const text = document.createElement("span");
-          if (stock < 4) {
-            chip.className = "chip chip-warning";
-            text.textContent = "Necessário reposição";
-          } else {
-            chip.className = "chip chip-success";
-            text.textContent = "OK";
-          }
-          chip.appendChild(dot);
-          chip.appendChild(text);
-          statusTd.appendChild(chip);
-          tr.appendChild(statusTd);
-
-          tbody.appendChild(tr);
-        });
       }
+    });
 
-      document.getElementById("total-good").textContent = formatKg(totalGood) + " kg";
-      document.getElementById("total-waste").textContent = formatKg(totalWaste) + " kg";
-      document.getElementById("total-stock").textContent = formatKg(totalStock) + " kg";
-    }
+    // === VENDAS ===
+    const vendasTableBody = document.querySelector("#tabelaVendas tbody");
+    const vendasResumo = document.getElementById("vendasResumo");
+    const filtroVendaMarketplace = document.getElementById("filtroVendaMarketplace");
+    const filtroVendaStatus = document.getElementById("filtroVendaStatus");
 
-    function renderSalesKPIs() {
-      let totalSales = 0;
-      let totalNet = 0;
-      let totalPrintCost = 0;
-      const byMarketplace = {};
-      const byProduct = {};
-      const daily = {};
+    document.getElementById("btnAddVenda").addEventListener("click", async () => {
+      const sku = document.getElementById("venSku").value.trim();
+      const nome = document.getElementById("venNome").value.trim();
+      const marketplace = document.getElementById("venMarketplace").value;
+      const cor = document.getElementById("venCor").value;
+      const preco = parseFloat(document.getElementById("venPreco").value || "0");
+      const qtd = parseInt(document.getElementById("venQtd").value || "1", 10);
+      const dataVenda = document.getElementById("venDataVenda").value;
+      const dataEnvio = document.getElementById("venDataEnvio").value;
 
-      state.orders.forEach(o => {
-        const { net } = computeOrderNet(o);
-        const sale = o.salePrice || 0;
-        const mkt = o.marketplace || "Outros";
-        const saleDateKey = o.saleDate ? o.saleDate.slice(0,10) : (o.createdAt ? o.createdAt.slice(0,10) : null);
-        const printCost = computeOrderPrintCost(o.id);
-
-        totalSales += sale;
-        totalNet += net;
-        totalPrintCost += printCost;
-
-        if (!byMarketplace[mkt]) {
-          byMarketplace[mkt] = { sales: 0, net: 0, printCost: 0 };
-        }
-        byMarketplace[mkt].sales += sale;
-        byMarketplace[mkt].net += net;
-        byMarketplace[mkt].printCost += printCost;
-
-        if (!byProduct[o.productId]) {
-          byProduct[o.productId] = { qty: 0, sales: 0, net: 0 };
-        }
-        byProduct[o.productId].qty += o.quantity || 1;
-        byProduct[o.productId].sales += sale;
-        byProduct[o.productId].net += net;
-
-        if (saleDateKey) {
-          if (!daily[saleDateKey]) daily[saleDateKey] = { gross: 0, net: 0 };
-          daily[saleDateKey].gross += sale;
-          daily[saleDateKey].net += net;
-        }
-      });
-
-      const margin = totalNet - totalPrintCost;
-
-      document.getElementById("kpi-sales-gross").textContent = formatMoney(totalSales);
-      document.getElementById("kpi-sales-net").textContent = formatMoney(totalNet);
-      document.getElementById("kpi-print-cost").textContent = formatMoney(totalPrintCost);
-      document.getElementById("kpi-margin").textContent = formatMoney(margin);
-
-      const tbodyMkt = document.getElementById("kpi-marketplace-body");
-      tbodyMkt.innerHTML = "";
-      const mktNames = Object.keys(byMarketplace);
-      if (!mktNames.length) {
-        const tr = document.createElement("tr");
-        const td = document.createElement("td");
-        td.colSpan = 5;
-        td.className = "muted";
-        td.textContent = "Nenhuma venda cadastrada.";
-        tr.appendChild(td);
-        tbodyMkt.appendChild(tr);
-      } else {
-        mktNames.forEach(mkt => {
-          const row = byMarketplace[mkt];
-          const m = row.net - row.printCost;
-          const tr = document.createElement("tr");
-          const mktTd = document.createElement("td"); mktTd.textContent = mkt; tr.appendChild(mktTd);
-          const sTd = document.createElement("td"); sTd.textContent = row.sales.toFixed(2); tr.appendChild(sTd);
-          const nTd = document.createElement("td"); nTd.textContent = row.net.toFixed(2); tr.appendChild(nTd);
-          const cTd = document.createElement("td"); cTd.textContent = row.printCost.toFixed(2); tr.appendChild(cTd);
-          const mTd = document.createElement("td"); mTd.textContent = m.toFixed(2); tr.appendChild(mTd);
-          tbodyMkt.appendChild(tr);
-        });
-      }
-
-      const tbodyProd = document.getElementById("kpi-products-body");
-      tbodyProd.innerHTML = "";
-      const productIds = Object.keys(byProduct);
-      if (!productIds.length) {
-        const tr = document.createElement("tr");
-        const td = document.createElement("td");
-        td.colSpan = 4;
-        td.className = "muted";
-        td.textContent = "Nenhuma venda para listar produtos.";
-        tr.appendChild(td);
-        tbodyProd.appendChild(tr);
-      } else {
-        productIds.sort((a,b)=> byProduct[b].qty - byProduct[a].qty);
-        productIds.forEach(pid => {
-          const row = byProduct[pid];
-          const prod = state.products.find(p => p.id === pid);
-          const tr = document.createElement("tr");
-          const prodTd = document.createElement("td");
-          prodTd.textContent = prod ? `${prod.sku} · ${prod.name}` : "Produto removido";
-          tr.appendChild(prodTd);
-          const qtyTd = document.createElement("td");
-          qtyTd.textContent = row.qty;
-          tr.appendChild(qtyTd);
-          const sTd = document.createElement("td");
-          sTd.textContent = row.sales.toFixed(2);
-          tr.appendChild(sTd);
-          const nTd = document.createElement("td");
-          nTd.textContent = row.net.toFixed(2);
-          tr.appendChild(nTd);
-          tbodyProd.appendChild(tr);
-        });
-      }
-
-      renderRevenueChart(daily);
-    }
-
-    function renderRevenueChart(daily) {
-      const canvas = document.getElementById("revenue-chart");
-      if (!canvas || !canvas.getContext) return;
-      const ctx = canvas.getContext("2d");
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      const dates = Object.keys(daily).sort();
-      if (!dates.length) {
-        ctx.fillStyle = "#9ca3af";
-        ctx.font = "12px system-ui";
-        ctx.fillText("Nenhuma venda para desenhar o gráfico.", 10, 20);
+      if (!sku) {
+        alert("Informe o SKU da venda.");
         return;
       }
 
-      const valuesGross = dates.map(d => daily[d].gross);
-      const valuesNet = dates.map(d => daily[d].net);
-      const maxVal = Math.max(...valuesGross, ...valuesNet) || 1;
-
-      const paddingLeft = 40, paddingRight = 10, paddingTop = 20, paddingBottom = 30;
-      const w = canvas.width, h = canvas.height;
-      const chartWidth = w - paddingLeft - paddingRight;
-      const chartHeight = h - paddingTop - paddingBottom;
-
-      ctx.strokeStyle = "#374151";
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.moveTo(paddingLeft, paddingTop);
-      ctx.lineTo(paddingLeft, h - paddingBottom);
-      ctx.lineTo(w - paddingRight, h - paddingBottom);
-      ctx.stroke();
-
-      ctx.fillStyle = "#9ca3af";
-      ctx.font = "10px system-ui";
-      ctx.fillText(maxVal.toFixed(0), 5, paddingTop + 5);
-      ctx.fillText("0", 10, h - paddingBottom);
-
-      const stepX = dates.length > 1 ? chartWidth / (dates.length - 1) : 0;
-      const yFor = (value) => h - paddingBottom - (value / maxVal) * chartHeight;
-
-      ctx.beginPath();
-      dates.forEach((d,i) => {
-        const x = paddingLeft + stepX * i;
-        const y = yFor(daily[d].gross);
-        if (i === 0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
-      });
-      ctx.strokeStyle = "#22c55e";
-      ctx.lineWidth = 2;
-      ctx.stroke();
-
-      ctx.beginPath();
-      dates.forEach((d,i) => {
-        const x = paddingLeft + stepX * i;
-        const y = yFor(daily[d].net);
-        if (i === 0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
-      });
-      ctx.strokeStyle = "#0ea5e9";
-      ctx.lineWidth = 2;
-      ctx.stroke();
-
-      ctx.fillStyle = "#9ca3af";
-      ctx.font = "9px system-ui";
-      dates.forEach((d,i) => {
-        const x = paddingLeft + stepX * i;
-        const label = d.slice(5).split("-").reverse().join("/");
-        ctx.save();
-        ctx.translate(x, h - paddingBottom + 10);
-        ctx.rotate(-Math.PI / 4);
-        ctx.fillText(label, 0, 0);
-        ctx.restore();
+      await addDoc(collection(db, "orders"), {
+        sku,
+        nome,
+        marketplace,
+        cor,
+        preco,
+        qtd,
+        dataVenda: dataVenda || null,
+        dataEnvio: dataEnvio || null,
+        status: "afazer",
+        createdAt: Date.now(),
       });
 
-      ctx.fillStyle = "#22c55e";
-      ctx.fillRect(w - 150, paddingTop, 8, 8);
-      ctx.fillStyle = "#e5e7eb";
-      ctx.fillText("Bruto", w - 140, paddingTop + 8);
+      document.getElementById("venSku").value = "";
+      document.getElementById("venNome").value = "";
+      document.getElementById("venPreco").value = "";
+      document.getElementById("venQtd").value = "1";
+      document.getElementById("venDataVenda").value = "";
+      document.getElementById("venDataEnvio").value = "";
+    });
 
-      ctx.fillStyle = "#0ea5e9";
-      ctx.fillRect(w - 80, paddingTop, 8, 8);
-      ctx.fillStyle = "#e5e7eb";
-      ctx.fillText("Líquido", w - 70, paddingTop + 8);
-    }
+    function renderVendas(snapshot) {
+      vendasTableBody.innerHTML = "";
+      let count = 0;
+      let count3D = 0;
+      let devolucoes = 0;
 
-    function editFilament(id) {
-      const f = state.filaments.find(x => x.id === id);
-      if (!f) return;
-      document.getElementById("filament-edit-id").value = f.id;
-      document.getElementById("filament-color").value = f.color;
-      document.getElementById("filament-material").value = f.material;
-      document.getElementById("filament-brand").value = f.brand || "";
-      document.getElementById("filament-price").value = f.pricePerKg || "";
-      document.getElementById("filament-qty-total").value = f.totalPurchasedKg || "";
-    }
+      snapshot.forEach((docSnap) => {
+        const v = docSnap.data();
+        const id = docSnap.id;
 
-    function deleteFilament(id) {
-      if (!confirm("Excluir este filamento? Impressões associadas ficarão sem referência.")) return;
-      state.filaments = state.filaments.filter(f => f.id !== id);
-      saveState();
-      renderFilamentList();
-      renderFilamentSelectForPrints();
-      renderColorSelects();
-      renderFilamentReport();
-      renderPrints();
-    }
-
-    function handleFilamentFormSubmit(e) {
-      e.preventDefault();
-      const editId = document.getElementById("filament-edit-id").value;
-      const color = document.getElementById("filament-color").value.trim();
-      const material = document.getElementById("filament-material").value.trim();
-      const brand = document.getElementById("filament-brand").value.trim();
-      const pricePerKg = parseNumber(document.getElementById("filament-price").value);
-      const totalQty = parseNumber(document.getElementById("filament-qty-total").value);
-
-      if (!color || !material || pricePerKg <= 0 || totalQty < 0) {
-        alert("Preencha os campos de filamento com valores válidos.");
-        return;
-      }
-
-      if (editId) {
-        const f = state.filaments.find(x => x.id === editId);
-        if (f) {
-          f.color = color;
-          f.material = material;
-          f.brand = brand;
-          f.pricePerKg = pricePerKg;
-          f.totalPurchasedKg = totalQty;
-        }
-      } else {
-        state.filaments.push({
-          id: generateId(),
-          color,
-          material,
-          brand,
-          pricePerKg,
-          totalPurchasedKg: totalQty
-        });
-      }
-
-      saveState();
-      e.target.reset();
-      document.getElementById("filament-edit-id").value = "";
-      renderFilamentList();
-      renderFilamentSelectForPrints();
-      renderColorSelects();
-      renderFilamentReport();
-    }
-
-    function editProduct(id) {
-      const p = state.products.find(x => x.id === id);
-      if (!p) return;
-      document.getElementById("product-edit-id").value = p.id;
-      document.getElementById("product-sku").value = p.sku;
-      document.getElementById("product-name").value = p.name;
-      document.getElementById("product-color").value = p.defaultColor || "";
-      document.getElementById("product-avg-cost").value = p.avgPrintCost || "";
-    }
-
-    function deleteProduct(id) {
-      if (!confirm("Excluir este produto? Pedidos vinculados continuarão, mas sem referência ao produto.")) return;
-      state.products = state.products.filter(p => p.id !== id);
-      saveState();
-      renderProductList();
-      renderProductSelects();
-      renderOrders();
-      renderQueue();
-    }
-
-    function handleProductFormSubmit(e) {
-      e.preventDefault();
-      const editId = document.getElementById("product-edit-id").value;
-      const sku = document.getElementById("product-sku").value.trim();
-      const name = document.getElementById("product-name").value.trim();
-      const defaultColor = document.getElementById("product-color").value || "";
-      const avgPrintCost = parseNumber(document.getElementById("product-avg-cost").value);
-
-      if (!sku || !name) {
-        alert("SKU e nome do produto são obrigatórios.");
-        return;
-      }
-
-      if (editId) {
-        const p = state.products.find(x => x.id === editId);
-        if (p) {
-          p.sku = sku;
-          p.name = name;
-          p.defaultColor = defaultColor || "";
-          p.avgPrintCost = avgPrintCost || 0;
-        }
-      } else {
-        state.products.push({
-          id: generateId(),
-          sku,
-          name,
-          defaultColor: defaultColor || "",
-          avgPrintCost: avgPrintCost || 0
-        });
-      }
-
-      saveState();
-      e.target.reset();
-      document.getElementById("product-edit-id").value = "";
-      renderProductList();
-      renderProductSelects();
-    }
-
-    function editOrder(id) {
-      const o = state.orders.find(x => x.id === id);
-      if (!o) return;
-      document.getElementById("order-edit-id").value = o.id;
-      document.getElementById("order-product").value = o.productId || "";
-      document.getElementById("order-color").value = o.color || "";
-      document.getElementById("order-marketplace").value = o.marketplace || "";
-      document.getElementById("order-sale-price").value = o.salePrice || "";
-      document.getElementById("order-qty").value = o.quantity || 1;
-      document.getElementById("order-fee-percent").value = o.feePercent || "";
-      document.getElementById("order-tax-percent").value = TAX_IMPOSTO;
-      document.getElementById("order-shipping-cost").value = o.shippingCost || "";
-      if (o.saleDate) document.getElementById("order-sale-date").value = o.saleDate.slice(0,10);
-      if (o.shipByDate) document.getElementById("order-ship-date").value = o.shipByDate.slice(0,10);
-    }
-
-    function deleteOrder(id) {
-      if (!confirm("Excluir este pedido? Impressões associadas ficarão sem esse pedido.")) return;
-      state.prints.forEach(p => {
-        if (!Array.isArray(p.orderIds)) return;
-        p.orderIds = p.orderIds.filter(oid => oid !== id);
-      });
-      state.orders = state.orders.filter(o => o.id !== id);
-      saveState();
-      renderOrders();
-      renderQueue();
-      renderOrderSelectForPrints();
-      renderPrints();
-      renderSalesKPIs();
-      renderProductList();
-    }
-
-    function applyMarketplaceDefaults() {
-      const mkt = document.getElementById("order-marketplace").value;
-      const salePrice = parseNumber(document.getElementById("order-sale-price").value);
-      const feeInput = document.getElementById("order-fee-percent");
-      const taxInput = document.getElementById("order-tax-percent");
-      const shipInput = document.getElementById("order-shipping-cost");
-
-      if (mkt) {
-        if (defaultFeeByMarketplace[mkt] != null) {
-          feeInput.value = defaultFeeByMarketplace[mkt];
-        }
-        shipInput.value = defaultShippingByMarketplace(mkt, salePrice).toFixed(2);
-      }
-      taxInput.value = TAX_IMPOSTO.toFixed(2);
-    }
-
-    function handleOrderFormSubmit(e) {
-      e.preventDefault();
-      const editId = document.getElementById("order-edit-id").value;
-      const productId = document.getElementById("order-product").value;
-      const color = document.getElementById("order-color").value;
-      const marketplace = document.getElementById("order-marketplace").value;
-      const salePrice = parseNumber(document.getElementById("order-sale-price").value);
-      const qty = parseInt(document.getElementById("order-qty").value || "1", 10) || 1;
-      let feePercent = parseNumber(document.getElementById("order-fee-percent").value);
-      const shippingCost = parseNumber(document.getElementById("order-shipping-cost").value);
-      const saleDateRaw = document.getElementById("order-sale-date").value;
-      const shipDateRaw = document.getElementById("order-ship-date").value;
-
-      if (!productId || !color || !marketplace || !salePrice || salePrice <= 0 || !saleDateRaw || !shipDateRaw) {
-        alert("Preencha todos os campos obrigatórios da venda.");
-        return;
-      }
-
-      if (!feePercent && feePercent !== 0) {
-        feePercent = defaultFeeByMarketplace[marketplace] || 0;
-      }
-
-      const saleDate = new Date(saleDateRaw).toISOString();
-      const shipByDate = new Date(shipDateRaw).toISOString();
-
-      if (editId) {
-        const o = state.orders.find(x => x.id === editId);
-        if (o) {
-          o.productId = productId;
-          o.color = color;
-          o.marketplace = marketplace;
-          o.salePrice = salePrice;
-          o.quantity = qty;
-          o.feePercent = feePercent;
-          o.taxPercent = TAX_IMPOSTO;
-          o.shippingCost = shippingCost;
-          o.saleDate = saleDate;
-          o.shipByDate = shipByDate;
-        }
-      } else {
-        state.orders.push({
-          id: generateId(),
-          createdAt: new Date().toISOString(),
-          productId,
-          color,
-          marketplace,
-          salePrice,
-          quantity: qty,
-          feePercent,
-          taxPercent: TAX_IMPOSTO,
-          shippingCost,
-          packagingCost: EMBALAGEM_FIXA,
-          saleDate,
-          shipByDate,
-          productionStatus: "na_fila"
-        });
-      }
-
-      saveState();
-      e.target.reset();
-      document.getElementById("order-edit-id").value = "";
-      document.getElementById("order-tax-percent").value = TAX_IMPOSTO.toFixed(2);
-      renderOrders();
-      renderQueue();
-      renderOrderSelectForPrints();
-      renderSalesKPIs();
-      renderProductList();
-    }
-
-    function addStockItemRow() {
-      const container = document.getElementById("stock-items-list");
-      const row = document.createElement("div");
-      row.className = "stock-item-row";
-
-      const select = document.createElement("select");
-      const opt0 = document.createElement("option");
-      opt0.value = "";
-      opt0.textContent = "Selecione um produto";
-      select.appendChild(opt0);
-
-      state.products.forEach(p => {
-        const opt = document.createElement("option");
-        opt.value = p.id;
-        opt.textContent = `${p.sku} · ${p.name}`;
-        select.appendChild(opt);
-      });
-
-      const qtyInput = document.createElement("input");
-      qtyInput.type = "number";
-      qtyInput.min = "1";
-      qtyInput.step = "1";
-      qtyInput.value = "1";
-
-      const removeBtn = document.createElement("button");
-      removeBtn.type = "button";
-      removeBtn.className = "btn-small btn-danger";
-      removeBtn.textContent = "Remover";
-      removeBtn.onclick = () => container.removeChild(row);
-
-      row.appendChild(select);
-      row.appendChild(qtyInput);
-      row.appendChild(removeBtn);
-      container.appendChild(row);
-    }
-
-    function deletePrint(id) {
-      if (!confirm("Excluir esta impressão?")) return;
-      state.prints = state.prints.filter(p => p.id !== id);
-      saveState();
-      renderPrints();
-      renderFilamentReport();
-      renderSalesKPIs();
-      renderProductList();
-    }
-
-    function handlePrintFormSubmit(e) {
-      e.preventDefault();
-      const mode = document.querySelector('input[name="print-mode"]:checked').value;
-      const name = document.getElementById("print-name").value.trim();
-      const filamentId = document.getElementById("print-filament").value;
-      const grams = parseNumber(document.getElementById("print-grams").value);
-      const timeMinutes = parseNumber(document.getElementById("print-time").value);
-
-      if (!filamentId || grams <= 0 || timeMinutes <= 0) {
-        alert("Preencha filamento, gramas e tempo com valores válidos.");
-        return;
-      }
-
-      let orderIds = [];
-      let stockItems = [];
-
-      if (mode === "pedidos") {
-        const ordersSelect = document.getElementById("print-orders");
-        orderIds = Array.from(ordersSelect.selectedOptions).map(opt => opt.value).filter(v => v);
-      } else if (mode === "estoque") {
-        const container = document.getElementById("stock-items-list");
-        const rows = Array.from(container.querySelectorAll(".stock-item-row"));
-        rows.forEach(row => {
-          const sel = row.querySelector("select");
-          const qtyInput = row.querySelector("input");
-          const pid = sel.value;
-          const q = parseInt(qtyInput.value || "0", 10);
-          if (pid && q > 0) stockItems.push({ productId: pid, quantity: q });
-        });
-        if (!stockItems.length) {
-          alert("Adicione ao menos um produto para estoque.");
+        if (filtroVendaMarketplace.value && v.marketplace !== filtroVendaMarketplace.value) {
           return;
         }
-      }
-
-      const print = {
-        id: generateId(),
-        createdAt: new Date().toISOString(),
-        name,
-        filamentId,
-        grams,
-        timeMinutes,
-        status: "em_impressao",
-        mode,
-        orderIds,
-        stockItems
-      };
-      state.prints.unshift(print);
-
-      if (mode === "pedidos") {
-        orderIds.forEach(id => {
-          const o = state.orders.find(x => x.id === id);
-          if (o) o.productionStatus = "em_impressao";
-        });
-      }
-
-      saveState();
-      e.target.reset();
-      document.getElementById("print-filament").selectedIndex = 0;
-      document.getElementById("stock-items-list").innerHTML = "";
-      renderPrints();
-      renderOrders();
-      renderQueue();
-      renderFilamentReport();
-      renderSalesKPIs();
-      renderOrderSelectForPrints();
-      renderProductList();
-    }
-
-    function markPrintStatus(printId, status) {
-      const p = state.prints.find(x => x.id === printId);
-      if (!p) return;
-      if (!Array.isArray(p.orderIds)) p.orderIds = [];
-      p.status = status;
-
-      if (p.mode === "pedidos") {
-        if (status === "sucesso") {
-          p.orderIds.forEach(id => {
-            const o = state.orders.find(x => x.id === id);
-            if (o) o.productionStatus = "concluido";
-          });
-        } else if (status === "erro") {
-          p.orderIds.forEach(id => {
-            const o = state.orders.find(x => x.id === id);
-            if (o) o.productionStatus = "na_fila";
-          });
-        } else if (status === "erro_parcial") {
-          p.orderIds.forEach(id => {
-            const o = state.orders.find(x => x.id === id);
-            if (!o) return;
-            const product = state.products.find(pr => pr.id === o.productId);
-            const label = product ? `${product.sku} · ${product.name}` : "produto";
-            const resp = confirm(`Na impressão "${p.name || ""}", a venda do produto ${label} deu problema?\nOK = voltar para fila\nCancelar = considerar concluído`);
-            o.productionStatus = resp ? "na_fila" : "concluido";
-          });
+        if (filtroVendaStatus.value && v.status !== filtroVendaStatus.value) {
+          return;
         }
-      }
 
-      saveState();
-      renderPrints();
-      renderOrders();
-      renderQueue();
-      renderFilamentReport();
-      renderSalesKPIs();
-      renderProductList();
+        count++;
+        if ((v.sku || "").toUpperCase().includes("3D")) count3D++;
+        if (v.status === "devolvido") devolucoes++;
+
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${v.sku}</td>
+          <td>${v.nome || ""}</td>
+          <td>${marketplaceTag(v.marketplace)}</td>
+          <td>${(v.preco || 0).toFixed(2)}</td>
+          <td>${v.qtd || 1}</td>
+          <td>${statusPill(v.status)}</td>
+          <td>${v.dataEnvio || ""}</td>
+          <td>
+            <button class="btn-ghost" data-status-venda="emimpressao" data-id="${id}">▶️</button>
+            <button class="btn-ghost" data-status-venda="pronto" data-id="${id}">✅</button>
+            <button class="btn-ghost" data-status-venda="enviado" data-id="${id}">📦</button>
+            <button class="btn-ghost" data-status-venda="cancelado" data-id="${id}">❌</button>
+            <button class="btn-ghost" data-status-venda="devolvido" data-id="${id}">↩️</button>
+            <button class="btn-danger" data-del-venda="${id}">🗑</button>
+          </td>
+        `;
+        vendasTableBody.appendChild(tr);
+      });
+
+      vendasResumo.textContent = `${count} venda(s) listadas`;
+      document.getElementById("kpiVendas3D").textContent = count3D;
+      document.getElementById("kpiDevolucoes").textContent = devolucoes;
     }
 
-    document.addEventListener("DOMContentLoaded", () => {
-      loadState();
-      initTabs();
+    let unsubVendas = null;
+    function listenVendas() {
+      if (unsubVendas) unsubVendas();
+      const q = query(collection(db, "orders"), orderBy("createdAt", "desc"));
+      unsubVendas = onSnapshot(q, (snapshot) => renderVendas(snapshot));
+    }
 
-      renderFilamentList();
-      renderProductList();
-      renderProductSelects();
-      renderColorSelects();
-      renderFilamentSelectForPrints();
-      renderOrderSelectForPrints();
-      renderOrders();
-      renderQueue();
-      renderPrints();
-      renderFilamentReport();
-      renderSalesKPIs();
-      document.getElementById("order-tax-percent").value = TAX_IMPOSTO.toFixed(2);
+    filtroVendaMarketplace.addEventListener("change", listenVendas);
+    filtroVendaStatus.addEventListener("change", listenVendas);
+    listenVendas();
 
-      document.getElementById("filament-form").addEventListener("submit", handleFilamentFormSubmit);
-      document.getElementById("product-form").addEventListener("submit", handleProductFormSubmit);
-      document.getElementById("order-form").addEventListener("submit", handleOrderFormSubmit);
-      document.getElementById("print-form").addEventListener("submit", handlePrintFormSubmit);
+    vendasTableBody.addEventListener("click", async (e) => {
+      const id = e.target.getAttribute("data-id");
+      const newStatus = e.target.getAttribute("data-status-venda");
+      const delId = e.target.getAttribute("data-del-venda");
 
-      document.getElementById("order-marketplace").addEventListener("change", applyMarketplaceDefaults);
-      document.getElementById("order-sale-price").addEventListener("blur", applyMarketplaceDefaults);
+      if (delId) {
+        if (confirm("Excluir esta venda da base inteira (inclusive KPIs)?")) {
+          await deleteDoc(doc(db, "orders", delId));
+        }
+        return;
+      }
 
-      document.getElementById("add-stock-item-btn").addEventListener("click", addStockItemRow);
+      if (id && newStatus) {
+        await updateDoc(doc(db, "orders", id), { status: newStatus });
+      }
+    });
 
-      document.querySelectorAll('input[name="print-mode"]').forEach(radio => {
-        radio.addEventListener("change", () => {
-          const mode = document.querySelector('input[name="print-mode"]:checked').value;
-          document.getElementById("print-orders-section").style.display = mode === "pedidos" ? "block" : "none";
-          document.getElementById("stock-items-section").style.display = mode === "estoque" ? "block" : "none";
-        });
+    // === FILA (baseada em orders com status != cancelado/devolvido) ===
+    const filaBody = document.querySelector("#tabelaFila tbody");
+    const filaResumo = document.getElementById("filaResumo");
+
+    function renderFila(snapshot) {
+      filaBody.innerHTML = "";
+      let count = 0;
+
+      snapshot.forEach((docSnap) => {
+        const v = docSnap.data();
+        const id = docSnap.id;
+
+        if (["cancelado", "devolvido"].includes(v.status)) return;
+
+        if (filtroFilaMarketplace.value && v.marketplace !== filtroFilaMarketplace.value) {
+          return;
+        }
+
+        const is3d = (v.sku || "").toUpperCase().includes("3D");
+        if (filtroFilaTipo.value === "3d" && !is3d) return;
+        if (filtroFilaTipo.value === "outros" && is3d) return;
+
+        if (filtroFilaStatus.value && v.status !== filtroFilaStatus.value) return;
+
+        count++;
+
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${v.sku}</td>
+          <td>${v.nome || ""}</td>
+          <td>${marketplaceTag(v.marketplace)}</td>
+          <td>${v.cor || ""}</td>
+          <td>${v.qtd || 1}</td>
+          <td>${v.dataEnvio || ""}</td>
+          <td>${statusPill(v.status)}</td>
+          <td>
+            <button class="btn-ghost" data-status-venda="emimpressao" data-id="${id}">▶️</button>
+            <button class="btn-ghost" data-status-venda="pronto" data-id="${id}">✅</button>
+            <button class="btn-ghost" data-status-venda="enviado" data-id="${id}">📦</button>
+            <button class="btn-danger" data-del-venda="${id}">🗑</button>
+          </td>
+        `;
+        filaBody.appendChild(tr);
       });
+
+      filaResumo.textContent = `${count} item(ns) na fila`;
+    }
+
+    const filtroFilaMarketplace = document.getElementById("filtroFilaMarketplace");
+    const filtroFilaTipo = document.getElementById("filtroFilaTipo");
+    const filtroFilaStatus = document.getElementById("filtroFilaStatus");
+
+    function listenFila() {
+      const q = query(collection(db, "orders"), orderBy("dataEnvio"));
+      onSnapshot(q, (snapshot) => renderFila(snapshot));
+    }
+
+    filtroFilaMarketplace.addEventListener("change", listenFila);
+    filtroFilaTipo.addEventListener("change", listenFila);
+    filtroFilaStatus.addEventListener("change", listenFila);
+    listenFila();
+
+    // Reaproveita o mesmo handler de clique da tabela de vendas para mudar status/excluir
+    filaBody.addEventListener("click", async (e) => {
+      const id = e.target.getAttribute("data-id");
+      const newStatus = e.target.getAttribute("data-status-venda");
+      const delId = e.target.getAttribute("data-del-venda");
+
+      if (delId) {
+        if (confirm("Excluir este pedido da base inteira?")) {
+          await deleteDoc(doc(db, "orders", delId));
+        }
+        return;
+      }
+
+      if (id && newStatus) {
+        await updateDoc(doc(db, "orders", id), { status: newStatus });
+      }
+    });
+
+    // === IMPRESSÕES (simples) ===
+    const impTableBody = document.querySelector("#tabelaImpressoes tbody");
+    const impResumo = document.getElementById("impressoesResumo");
+
+    document.getElementById("btnRegistrarImpressao").addEventListener("click", async () => {
+      const nome = document.getElementById("impNomeOpcional").value.trim();
+      const impressora = document.getElementById("impImpressora").value;
+      const cor = document.getElementById("impCor").value;
+      const gramas = parseFloat(document.getElementById("impGramas").value || "0");
+      const tempoMin = parseFloat(document.getElementById("impTempoMin").value || "0");
+      const status = document.getElementById("impStatus").value;
+
+      if (!cor || !gramas || !tempoMin) {
+        alert("Informe pelo menos cor, gramas e tempo de impressão.");
+        return;
+      }
+
+      const tempoHoras = tempoMin / 60;
+      const energiaKwh = 0.2 * tempoHoras;
+      const custoEnergia = energiaKwh * 0.95;
+
+      await addDoc(collection(db, "prints"), {
+        nome,
+        impressora,
+        cor,
+        gramas,
+        tempoMin,
+        status,
+        custoEnergia,
+        createdAt: Date.now(),
+      });
+
+      document.getElementById("impNomeOpcional").value = "";
+      document.getElementById("impGramas").value = "";
+      document.getElementById("impTempoMin").value = "";
+    });
+
+    onSnapshot(collection(db, "prints"), (snapshot) => {
+      impTableBody.innerHTML = "";
+      let count = 0;
+      snapshot.forEach((docSnap) => {
+        const p = docSnap.data();
+        count++;
+
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${p.nome || ""}</td>
+          <td>${p.impressora}</td>
+          <td>${p.cor}</td>
+          <td>${(p.gramas || 0).toFixed(1)}</td>
+          <td>${(p.tempoMin || 0).toFixed(0)}</td>
+          <td>${p.status}</td>
+          <td>${(p.custoEnergia || 0).toFixed(2)}</td>
+        `;
+        impTableBody.appendChild(tr);
+      });
+
+      impResumo.textContent = `${count} impressão(ões)`;
+    });
+
+    // === Botão de sincronizar Mercado Livre ===
+    const btnSyncMl = document.getElementById("btnSyncMl");
+    btnSyncMl.addEventListener("click", async () => {
+      btnSyncMl.disabled = true;
+      const original = btnSyncMl.innerHTML;
+      btnSyncMl.innerHTML = "🔄 Sincronizando...";
+
+      try {
+        const resp = await fetch("https://sistema-de-controle-de-filamentos-e.vercel.app/api/ml-sync");
+        const data = await resp.json();
+        alert(`Sincronização concluída.\nPedidos coletados: ${data.total ?? "?"}`);
+      } catch (err) {
+        alert("Erro ao sincronizar com o Mercado Livre.");
+      } finally {
+        btnSyncMl.disabled = false;
+        btnSyncMl.innerHTML = original;
+      }
     });
   </script>
 </body>
