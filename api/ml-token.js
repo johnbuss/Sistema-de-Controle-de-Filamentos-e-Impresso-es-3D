@@ -1,6 +1,16 @@
 import { db } from "./firebase-admin.js";
 
 export default async function handler(req, res) {
+  // --- CORS (sempre no topo) ---
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+
+  if (req.method === "OPTIONS") {
+    return res.status(200).end();
+  }
+  // -----------------------------
+
   const clientId = process.env.ML_CLIENT_ID;
   const clientSecret = process.env.ML_CLIENT_SECRET;
   const authCode = process.env.ML_AUTH_CODE;
@@ -13,7 +23,7 @@ export default async function handler(req, res) {
   let accessToken;
 
   if (!existing.exists) {
-    const resp = await fetch(https://api.mercadolibre.com/oauth/token, {
+    const resp = await fetch(`https://api.mercadolibre.com/oauth/token`, {
       method: "POST",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
@@ -40,7 +50,7 @@ export default async function handler(req, res) {
   } else {
     refreshToken = existing.data().refresh_token;
 
-    const resp = await fetch(https://api.mercadolibre.com/oauth/token, {
+    const resp = await fetch(`https://api.mercadolibre.com/oauth/token`, {
       method: "POST",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
