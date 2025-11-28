@@ -1,0 +1,2148 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Sistema de Produção · Langeloh</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #020617;
+      color: #e5e7eb;
+    }
+    body { margin: 0; padding: 1.5rem; }
+    .container { max-width: 1200px; margin: 0 auto; }
+    h1 { font-size: 1.8rem; margin-bottom: 0.75rem; text-align: center; }
+    h2 { font-size: 1.2rem; margin-bottom: 0.5rem; }
+    h3 { font-size: 1rem; margin-top: 1rem; margin-bottom: 0.25rem; }
+    p  { margin-top: 0; color: #9ca3af; font-size: 0.9rem; }
+
+    .tabs-nav {
+      display: flex;
+      gap: 0.5rem;
+      justify-content: center;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+    .tab-btn {
+      border-radius: 999px;
+      border: 1px solid #1f2937;
+      padding: 0.4rem 0.9rem;
+      font-size: 0.85rem;
+      background: #020617;
+      color: #e5e7eb;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .tab-btn.active {
+      background: linear-gradient(to right, #22c55e, #0ea5e9);
+      color: #0b1120;
+      border-color: transparent;
+      box-shadow: 0 10px 30px rgba(34, 197, 94, 0.35);
+    }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    .card {
+      background: #020617;
+      border-radius: 1rem;
+      border: 1px solid #1f2937;
+      padding: 1.2rem 1.4rem;
+      margin-top: 1.2rem;
+      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.8);
+    }
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 0.5rem;
+      margin-bottom: 0.7rem;
+    }
+    .badge {
+      font-size: 0.75rem;
+      padding: 0.15rem 0.5rem;
+      border-radius: 999px;
+      border: 1px solid #4b5563;
+      color: #9ca3af;
+      white-space: nowrap;
+    }
+
+    form { display: grid; gap: 0.75rem; margin-top: 0.5rem; }
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 0.75rem;
+    }
+    label {
+      display: block;
+      font-size: 0.8rem;
+      margin-bottom: 0.15rem;
+      color: #9ca3af;
+    }
+    input, select, textarea {
+      width: 100%;
+      padding: 0.5rem 0.6rem;
+      border-radius: 0.6rem;
+      border: 1px solid #374151;
+      background: #020617;
+      color: #e5e7eb;
+      font-size: 0.85rem;
+      box-sizing: border-box;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: #38bdf8;
+      box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.5);
+    }
+    textarea { min-height: 60px; resize: vertical; }
+
+    .radio-group {
+      display: flex;
+      gap: 1rem;
+      font-size: 0.85rem;
+      flex-wrap: wrap;
+    }
+    .radio-group label {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      cursor: pointer;
+      margin: 0;
+    }
+
+    button {
+      border-radius: 999px;
+      border: 1px solid transparent;
+      padding: 0.5rem 1rem;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      background: linear-gradient(to right, #22c55e, #0ea5e9);
+      color: #0b1120;
+      justify-self: flex-start;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: transform 0.1s ease, box-shadow 0.1s ease, opacity 0.15s ease;
+      box-shadow: 0 10px 30px rgba(34, 197, 94, 0.35);
+    }
+    button span.icon { font-size: 1rem; }
+    button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 16px 40px rgba(56, 189, 248, 0.35);
+      opacity: 0.95;
+    }
+    button:active {
+      transform: translateY(0);
+      box-shadow: 0 6px 18px rgba(15, 23, 42, 0.7);
+      opacity: 1;
+    }
+    .btn-small { padding: 0.25rem 0.6rem; font-size: 0.75rem; box-shadow: none; }
+    .btn-edit { background: linear-gradient(to right, #3b82f6, #22c55e); color: #0b1120; }
+    .btn-danger { background: linear-gradient(to right, #ef4444, #f97316); color: #0b1120; }
+    .btn-secondary { background: linear-gradient(to right, #6b7280, #4b5563); color: #e5e7eb; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 0.75rem;
+      font-size: 0.8rem;
+    }
+    th, td {
+      padding: 0.4rem 0.5rem;
+      text-align: left;
+      border-bottom: 1px solid #111827;
+      vertical-align: middle;
+      white-space: nowrap;
+    }
+    th {
+      font-weight: 500;
+      color: #9ca3af;
+      background: #020617;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+    .table-wrapper {
+      max-height: 280px;
+      overflow: auto;
+      border-radius: 0.75rem;
+      border: 1px solid #111827;
+      margin-top: 0.6rem;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      border-radius: 999px;
+      padding: 0.1rem 0.6rem;
+      font-size: 0.7rem;
+      border: 1px solid #1f2937;
+    }
+    .chip-success { border-color: #22c55e33; color: #4ade80; }
+    .chip-error   { border-color: #f9731633; color: #fb923c; }
+    .chip-info    { border-color: #38bdf833; color: #7dd3fc; }
+    .chip-warning { border-color: #facc1533; color: #fde68a; }
+    .chip-dot { width: 0.35rem; height: 0.35rem; border-radius: 999px; background: currentColor; }
+
+    .summary-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 0.75rem;
+      margin-top: 0.8rem;
+    }
+    .summary-card {
+      border-radius: 0.9rem;
+      border: 1px solid #111827;
+      padding: 0.6rem 0.7rem;
+      background: radial-gradient(circle at top left, #0f172a, #020617);
+    }
+    .summary-label { font-size: 0.7rem; color: #9ca3af; margin-bottom: 0.1rem; }
+    .summary-value { font-size: 0.95rem; font-weight: 600; }
+    .summary-sub   { font-size: 0.7rem; color: #6b7280; }
+    .muted { color: #6b7280; font-size: 0.75rem; }
+
+    canvas {
+      background: #020617;
+      border-radius: 0.75rem;
+      border: 1px solid #111827;
+      margin-top: 0.8rem;
+      width: 100%;
+      max-width: 100%;
+    }
+
+    .stock-item-row {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 0.4rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .stock-item-row select, .stock-item-row input { flex: 1; }
+
+    @media (max-width: 640px) {
+      body { padding: 1rem; }
+      .card { padding: 1rem 1rem; }
+      h1 { font-size: 1.5rem; }
+      table { font-size: 0.75rem; }
+      .tabs-nav { justify-content: flex-start; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Sistema de Produção & Filamentos</h1>
+    <p style="text-align:center;margin-bottom:1.2rem;">
+      Filamento + energia: consumo fixo <strong>0,2 kWh/h</strong> · custo da energia <strong>R$ 0,95 / kWh</strong>.
+    </p>
+
+    <div class="tabs-nav">
+      <button class="tab-btn active" data-tab="cadastros">Cadastros</button>
+      <button class="tab-btn" data-tab="fila">Vendas, Fila & Impressões</button>
+      <button class="tab-btn" data-tab="relatorios">Relatórios & KPIs</button>
+    </div>
+
+    <!-- ABA CADASTROS -->
+    <div id="tab-cadastros" class="tab-content active">
+      <!-- FILAMENTOS -->
+      <section class="card">
+        <div class="card-header">
+          <div>
+            <h2>Cadastro de Filamentos</h2>
+            <p>Cadastre cor, material, marca e custo por kg.</p>
+          </div>
+          <span class="badge">Filamentos</span>
+        </div>
+
+        <form id="filament-form">
+          <input type="hidden" id="filament-edit-id" />
+          <div class="form-grid">
+            <div>
+              <label for="filament-color">Cor *</label>
+              <input id="filament-color" type="text" placeholder="Ex: Azul Claro" required />
+            </div>
+            <div>
+              <label for="filament-material">Material *</label>
+              <input id="filament-material" type="text" placeholder="Ex: PLA, PETG, ABS" required />
+            </div>
+            <div>
+              <label for="filament-brand">Marca</label>
+              <input id="filament-brand" type="text" placeholder="Ex: 3D Fila, S3D" />
+            </div>
+            <div>
+              <label for="filament-price">Preço por kg (R$) *</label>
+              <input id="filament-price" type="number" step="0.01" min="0" required />
+            </div>
+            <div>
+              <label for="filament-qty-total">Total comprado (kg) *</label>
+              <input id="filament-qty-total" type="number" step="0.01" min="0" required />
+            </div>
+          </div>
+          <button type="submit">
+            <span class="icon">💾</span>
+            Salvar filamento
+          </button>
+          <span class="muted">Para corrigir um filamento, clique em “Editar”, ajuste e salve novamente.</span>
+        </form>
+
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Cor</th>
+                <th>Material</th>
+                <th>Marca</th>
+                <th>Preço/kg (R$)</th>
+                <th>Comprado (kg)</th>
+                <th>Estoque (kg)</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="filament-list-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- PRODUTOS -->
+      <section class="card">
+        <div class="card-header">
+          <div>
+            <h2>Cadastro de Produtos</h2>
+            <p>Produtos com nome, SKU, cor padrão, custo médio e estoque.</p>
+          </div>
+          <span class="badge">Produtos 3D</span>
+        </div>
+
+        <form id="product-form">
+          <input type="hidden" id="product-edit-id" />
+          <div class="form-grid">
+            <div>
+              <label for="product-sku">SKU *</label>
+              <input id="product-sku" type="text" placeholder="Ex: SUP-CABO-PLA" required />
+            </div>
+            <div>
+              <label for="product-name">Nome do produto *</label>
+              <input id="product-name" type="text" placeholder="Ex: Suporte de cabo" required />
+            </div>
+            <div>
+              <label for="product-color">Cor padrão (opcional)</label>
+              <select id="product-color"></select>
+            </div>
+            <div>
+              <label for="product-avg-cost">Custo médio de impressão (R$)</label>
+              <input id="product-avg-cost" type="number" step="0.01" min="0" />
+            </div>
+          </div>
+          <button type="submit">
+            <span class="icon">💾</span>
+            Salvar produto
+          </button>
+          <span class="muted">Esses produtos aparecem ao cadastrar vendas e estoque.</span>
+        </form>
+
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>SKU</th>
+                <th>Nome</th>
+                <th>Cor padrão</th>
+                <th>Custo médio imp. (R$)</th>
+                <th>Estoque atual</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="product-list-body"></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+
+    <!-- ABA VENDAS & FILA & IMPRESSÕES -->
+    <div id="tab-fila" class="tab-content">
+      <!-- VENDAS / PEDIDOS -->
+      <section class="card">
+        <div class="card-header">
+          <div>
+            <h2>Vendas / Pedidos</h2>
+            <p>Cadastre vendas que precisam ser produzidas e enviadas.</p>
+          </div>
+          <span class="badge">Vendas & Fila</span>
+        </div>
+
+        <form id="order-form">
+          <input type="hidden" id="order-edit-id" />
+          <div class="form-grid">
+            <div>
+              <label for="order-product">Produto (SKU) *</label>
+              <select id="order-product" required></select>
+            </div>
+            <div>
+              <label for="order-color">Cor utilizada *</label>
+              <select id="order-color" required></select>
+            </div>
+            <div>
+              <label for="order-marketplace">Marketplace *</label>
+              <select id="order-marketplace" required>
+                <option value="">Selecione</option>
+                <option>Mercado Livre</option>
+                <option>Shopee</option>
+                <option>Amazon</option>
+                <option>Magalu</option>
+                <option>Loja própria</option>
+                <option>Outros</option>
+              </select>
+            </div>
+            <div>
+              <label for="order-sale-price">Preço de venda (R$) *</label>
+              <input id="order-sale-price" type="number" step="0.01" min="0" required />
+            </div>
+            <div>
+              <label for="order-qty">Quantidade vendida</label>
+              <input id="order-qty" type="number" step="1" min="1" value="1" />
+            </div>
+            <div>
+              <label for="order-fee-percent">Taxa marketplace (%)</label>
+              <input id="order-fee-percent" type="number" step="0.01" min="0" placeholder="auto pelo marketplace" />
+            </div>
+            <div>
+              <label for="order-tax-percent">Imposto (%)</label>
+              <input id="order-tax-percent" type="number" step="0.01" min="0" readonly />
+            </div>
+            <div>
+              <label for="order-shipping-cost">Custo frete (R$)</label>
+              <input id="order-shipping-cost" type="number" step="0.01" min="0" />
+            </div>
+            <div>
+              <label for="order-sale-date">Data da venda *</label>
+              <input id="order-sale-date" type="date" required />
+            </div>
+            <div>
+              <label for="order-ship-date">Data de envio (limite) *</label>
+              <input id="order-ship-date" type="date" required />
+            </div>
+          </div>
+          <button type="submit">
+            <span class="icon">🧮</span>
+            Salvar venda / pedido
+          </button>
+          <span class="muted">
+            Líquido pré-impressão = venda - taxa - imposto (12,5%) - frete - embalagem (R$ 1,50).
+          </span>
+        </form>
+
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Venda em</th>
+                <th>Produto</th>
+                <th>Cor</th>
+                <th>Mkt</th>
+                <th>Venda (R$)</th>
+                <th>Taxa %</th>
+                <th>Imposto %</th>
+                <th>Frete (R$)</th>
+                <th>Líquido pré-imp. (R$)</th>
+                <th>Envio até</th>
+                <th>Status produção</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="orders-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- FILA DE IMPRESSÃO -->
+      <section class="card">
+        <div class="card-header">
+          <div>
+            <h2>Fila de Impressão</h2>
+            <p>Pedidos pendentes, em impressão ou concluídos, por data de envio.</p>
+          </div>
+          <span class="badge">Fila</span>
+        </div>
+
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Envio até</th>
+                <th>Produto</th>
+                <th>Cor</th>
+                <th>Mkt</th>
+                <th>Líquido pré-imp. (R$)</th>
+                <th>Status produção</th>
+              </tr>
+            </thead>
+            <tbody id="queue-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- IMPRESSÕES -->
+      <section class="card">
+        <div class="card-header">
+          <div>
+            <h2>Registro de Impressões</h2>
+            <p>Impressões para pedidos ou para estoque, sempre com gramas e tempo.</p>
+          </div>
+          <span class="badge">Impressões</span>
+        </div>
+
+        <form id="print-form">
+          <input type="hidden" id="print-edit-id" />
+          <div class="form-grid">
+            <div>
+              <label>Tipo de impressão *</label>
+              <div class="radio-group">
+                <label>
+                  <input type="radio" name="print-mode" value="pedidos" checked />
+                  Produção para pedidos
+                </label>
+                <label>
+                  <input type="radio" name="print-mode" value="estoque" />
+                  Produção para estoque
+                </label>
+              </div>
+            </div>
+            <div>
+              <label for="print-name">Nome / referência (opcional)</label>
+              <input id="print-name" type="text" placeholder="Ex: Lote 1 - Azul PLA" />
+            </div>
+            <div>
+              <label for="print-filament">Filamento *</label>
+              <select id="print-filament" required></select>
+            </div>
+            <div>
+              <label for="print-grams">Gramas usadas *</label>
+              <input id="print-grams" type="number" step="0.01" min="0" required />
+            </div>
+            <div>
+              <label for="print-time">Tempo (minutos) *</label>
+              <input id="print-time" type="number" step="1" min="1" required />
+            </div>
+          </div>
+
+          <div id="print-orders-section" style="margin-top:0.6rem;">
+            <label for="print-orders">Pedidos desta impressão (produção para pedidos)</label>
+            <select id="print-orders" multiple size="4"></select>
+            <span class="muted">Segure CTRL (ou CMD no Mac) para selecionar vários pedidos da fila.</span>
+          </div>
+
+          <div id="stock-items-section" style="margin-top:0.8rem; display:none;">
+            <label>Produtos para estoque (produção para estoque)</label>
+            <div id="stock-items-list"></div>
+            <button type="button" id="add-stock-item-btn" class="btn-secondary btn-small" style="margin-top:0.4rem;">
+              + Adicionar SKU para estoque
+            </button>
+            <span class="muted">Cada linha representa um produto e a quantidade produzida para estoque.</span>
+          </div>
+
+          <button type="submit" style="margin-top:0.8rem;">
+            <span class="icon">🧾</span>
+            Registrar impressão
+          </button>
+          <span class="muted">
+            Impressão começa como “em impressão”. Depois marque Sucesso, Erro ou Erro parcial.
+          </span>
+        </form>
+
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Data</th>
+                <th>Nome</th>
+                <th>Filamento</th>
+                <th>Gramas</th>
+                <th>Tempo</th>
+                <th>Status</th>
+                <th>Pedidos / Estoque</th>
+                <th>Filamento (R$)</th>
+                <th>Energia (R$)</th>
+                <th>Total (R$)</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="prints-body"></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+
+    <!-- ABA RELATÓRIOS -->
+    <div id="tab-relatorios" class="tab-content">
+      <!-- RELATÓRIO FILAMENTOS -->
+      <section class="card">
+        <div class="card-header">
+          <div>
+            <h2>Relatórios · Filamentos</h2>
+            <p>Uso, desperdício, estoque, média/dia e alerta de reposição.</p>
+          </div>
+          <span class="badge">Filamentos</span>
+        </div>
+
+        <div class="summary-row">
+          <div class="summary-card">
+            <div class="summary-label">Uso total (kg) · Sucesso</div>
+            <div class="summary-value" id="total-good">0.000 kg</div>
+            <div class="summary-sub">Somando todas impressões não descartadas</div>
+          </div>
+          <div class="summary-card">
+            <div class="summary-label">Desperdício (kg) · Erros</div>
+            <div class="summary-value" id="total-waste">0.000 kg</div>
+            <div class="summary-sub">Impressões marcadas como erro total</div>
+          </div>
+          <div class="summary-card">
+            <div class="summary-label">Estoque total atual</div>
+            <div class="summary-value" id="total-stock">0.000 kg</div>
+            <div class="summary-sub">Após uso e desperdício</div>
+          </div>
+        </div>
+
+        <p class="muted" style="margin-top:0.7rem;">
+          Alerta: filamentos com estoque &lt; 4 kg aparecem como “Necessário reposição”.
+        </p>
+
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Cor</th>
+                <th>Material</th>
+                <th>Marca</th>
+                <th>Comprado (kg)</th>
+                <th>Usado OK (kg)</th>
+                <th>Desperdício (kg)</th>
+                <th>Estoque (kg)</th>
+                <th>Média/dia (kg)</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="report-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- RELATÓRIOS VENDAS / KPIs -->
+      <section class="card">
+        <div class="card-header">
+          <div>
+            <h2>Relatórios · Vendas & KPIs</h2>
+            <p>Faturamento, líquido, custo de impressão, margem, marketplaces e produtos.</p>
+          </div>
+          <span class="badge">Vendas</span>
+        </div>
+
+        <div class="summary-row">
+          <div class="summary-card">
+            <div class="summary-label">Faturamento bruto</div>
+            <div class="summary-value" id="kpi-sales-gross">R$ 0,00</div>
+            <div class="summary-sub">Soma de todas as vendas</div>
+          </div>
+          <div class="summary-card">
+            <div class="summary-label">Líquido pré-impressão</div>
+            <div class="summary-value" id="kpi-sales-net">R$ 0,00</div>
+            <div class="summary-sub">Após taxas, imposto, frete e embalagem</div>
+          </div>
+          <div class="summary-card">
+            <div class="summary-label">Custo de impressão</div>
+            <div class="summary-value" id="kpi-print-cost">R$ 0,00</div>
+            <div class="summary-sub">Filamento + energia (impressões vinculadas)</div>
+          </div>
+          <div class="summary-card">
+            <div class="summary-label">Margem após impressão</div>
+            <div class="summary-value" id="kpi-margin">R$ 0,00</div>
+            <div class="summary-sub">Líquido - custo impressão</div>
+          </div>
+        </div>
+
+        <h3>Evolução diária (faturamento x líquido)</h3>
+        <canvas id="revenue-chart" width="800" height="260"></canvas>
+
+        <h3 style="margin-top:1rem;">KPIs por marketplace</h3>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Marketplace</th>
+                <th>Faturamento (R$)</th>
+                <th>Líquido pré-imp. (R$)</th>
+                <th>Custo impressão (R$)</th>
+                <th>Margem pós-imp. (R$)</th>
+              </tr>
+            </thead>
+            <tbody id="kpi-marketplace-body"></tbody>
+          </table>
+        </div>
+
+        <h3 style="margin-top:1rem;">Produtos mais vendidos</h3>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Produto (SKU · Nome)</th>
+                <th>Qtd vendida</th>
+                <th>Faturamento (R$)</th>
+                <th>Líquido pré-imp. (R$)</th>
+              </tr>
+            </thead>
+            <tbody id="kpi-products-body"></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = "productionSystem_v4_seeded";
+    const energiaKwh = 0.2;
+    const precoKwh = 0.95;
+    const TAX_IMPOSTO = 12.5;
+    const EMBALAGEM_FIXA = 1.5;
+
+    const defaultFeeByMarketplace = {
+      "Mercado Livre": 12.5,
+      "Shopee": 20,
+      "Amazon": 12,
+      "Magalu": 21,
+      "Loja própria": 0,
+      "Outros": 0
+    };
+
+    const defaultShippingByMarketplace = (mkt, salePrice) => {
+      salePrice = salePrice || 0;
+      if (mkt === "Mercado Livre") {
+        return salePrice >= 79 ? 17.95 : 6.5;
+      }
+      if (mkt === "Shopee") return 4;
+      if (mkt === "Amazon") return 10;
+      if (mkt === "Magalu") return 5;
+      return 0;
+    };
+
+    // Dados iniciais (os que você mandou)
+    const initialFilaments = [
+      { id: "fil_offwhite", color: "OFF WHITE", material: "PLA", brand: "FULLJOY",  pricePerKg: 71.18, totalPurchasedKg: 4.000 },
+      { id: "fil_dourado",  color: "DOURADO",   material: "PLA", brand: "CREALITY", pricePerKg: 89.10, totalPurchasedKg: 3.000 },
+      { id: "fil_cinza",    color: "CINZA",     material: "PLA", brand: "TINMORRY", pricePerKg: 68.94, totalPurchasedKg: 3.000 },
+      { id: "fil_preto",    color: "PRETO",     material: "PLA", brand: "TINMORRY", pricePerKg: 68.94, totalPurchasedKg: 10.000 },
+      { id: "fil_branco",   color: "BRANCO",    material: "PLA", brand: "FULLJOY",  pricePerKg: 71.19, totalPurchasedKg: 3.000 },
+      { id: "fil_bege_cauc",color: "BEGE CAUCASIANO", material: "PLA", brand: "F3D", pricePerKg: 101.83, totalPurchasedKg: 7.570 },
+      { id: "fil_verde",    color: "VERDE",     material: "PLA", brand: "F3D",      pricePerKg: 101.83, totalPurchasedKg: 0.900 },
+      { id: "fil_bege",     color: "BEGE",      material: "PLA", brand: "3DFILA",   pricePerKg: 74.00, totalPurchasedKg: 14.000 },
+      { id: "fil_branco_sujo", color: "BRANCO SUJO", material: "PLA", brand: "3DFILA", pricePerKg: 74.00, totalPurchasedKg: 6.000 },
+      { id: "fil_branco_gesso", color: "BRANCO GESSO", material: "PLA", brand: "3DFILA", pricePerKg: 74.00, totalPurchasedKg: 3.600 },
+      { id: "fil_granito",  color: "GRANITO",   material: "PLA", brand: "F3D",      pricePerKg: 102.00, totalPurchasedKg: 8.000 }
+    ];
+
+    const initialProducts = [
+      { id: "prod_1",  sku: "1UVASOSONDULADOS",   name: "VASO ONDULADO",           defaultColor: "", avgPrintCost: 0 },
+      { id: "prod_2",  sku: "1UCUBOGEOMETRICO",   name: "CUBO GEOMETRICO",         defaultColor: "", avgPrintCost: 0 },
+      { id: "prod_3",  sku: "1UESCMODERN",        name: "FIBONACCI",               defaultColor: "", avgPrintCost: 0 },
+      { id: "prod_4",  sku: "1UVASOIRMAO",        name: "VASO MONACO",             defaultColor: "", avgPrintCost: 0 },
+      { id: "prod_5",  sku: "1UFAMILIA3D",        name: "FAMILIA BONECO",          defaultColor: "", avgPrintCost: 0 },
+      { id: "prod_6",  sku: "1UROSTOMULHER",      name: "ROSTO FEMININO",          defaultColor: "", avgPrintCost: 0 },
+      { id: "prod_7",  sku: "1ULIVROVASO",        name: "LEITOR E VASO",           defaultColor: "", avgPrintCost: 0 },
+      { id: "prod_8",  sku: "1UAMORETERNO",       name: "CASAMENTO ESCULTURA",     defaultColor: "", avgPrintCost: 0 },
+      { id: "prod_9",  sku: "1ULACOSETERNOS1",    name: "LAÇOS ETERNOS 1 FILHO",   defaultColor: "", avgPrintCost: 0 },
+      { id: "prod_10", sku: "1UMULHERELEGANTE",   name: "MULHER ELEGANTE",         defaultColor: "", avgPrintCost: 0 },
+      { id: "prod_11", sku: "1UKITVASOSBOHO",     name: "VASOS BOHO",              defaultColor: "", avgPrintCost: 0 },
+      { id: "prod_12", sku: "1UMULHEREGATO",      name: "MULHER E GATO",           defaultColor: "", avgPrintCost: 0 },
+      { id: "prod_13", sku: "1ULEAO",             name: "LEAO LUXO",               defaultColor: "", avgPrintCost: 0 },
+      { id: "prod_14", sku: "1ULACOSETERNOS2",    name: "LAÇOS ETERNOS 2 FILHOS",  defaultColor: "", avgPrintCost: 0 },
+      { id: "prod_15", sku: "1ULACOSETERNOS3",    name: "LAÇOS ETERNOS 3 FILHOS",  defaultColor: "", avgPrintCost: 0 },
+      { id: "prod_16", sku: "1UKITESTATUALIVRO",  name: "LEITOR VASO E PENSADOR",  defaultColor: "", avgPrintCost: 0 },
+      { id: "prod_17", sku: "1UAGUIA",            name: "AGUIA",                   defaultColor: "", avgPrintCost: 0 },
+      { id: "prod_18", sku: "1UBUÇOMINI",         name: "2 ROSTOS",                defaultColor: "", avgPrintCost: 0 },
+      { id: "prod_19", sku: "1UFAMILIA3D_1",      name: "FAMILIA 1 FILHO",         defaultColor: "", avgPrintCost: 0 },
+      { id: "prod_20", sku: "1UFAMILIA3D_2",      name: "FAMILIA 2 FILHOS",        defaultColor: "", avgPrintCost: 0 },
+      { id: "prod_21", sku: "1UFAMILIA3D_3",      name: "FAMILIA 3 FILHOS",        defaultColor: "", avgPrintCost: 0 },
+      { id: "prod_22", sku: "1ULOTUSKIT",         name: "LÓTUS FLOR",              defaultColor: "", avgPrintCost: 0 }
+    ];
+
+    const state = {
+      filaments: [],
+      products: [],
+      orders: [],
+      prints: []
+    };
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (parsed) {
+            if (Array.isArray(parsed.filaments)) state.filaments = parsed.filaments;
+            if (Array.isArray(parsed.products)) state.products = parsed.products;
+            if (Array.isArray(parsed.orders)) state.orders = parsed.orders;
+            if (Array.isArray(parsed.prints)) state.prints = parsed.prints;
+            return;
+          }
+        }
+      } catch (e) {
+        console.error("Erro ao carregar dados:", e);
+      }
+      // Se não tiver nada salvo, carrega os dados iniciais que você mandou
+      state.filaments = initialFilaments.map(f => ({ ...f }));
+      state.products  = initialProducts.map(p => ({ ...p }));
+      state.orders = [];
+      state.prints = [];
+      saveState();
+    }
+
+    function saveState() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      } catch (e) {
+        console.error("Erro ao salvar dados:", e);
+      }
+    }
+
+    function generateId() {
+      return Date.now().toString(36) + Math.random().toString(36).slice(2);
+    }
+    function formatKg(kg) { return (kg || 0).toFixed(3); }
+    function formatMoney(v) { return "R$ " + (v || 0).toFixed(2); }
+    function formatDate(iso) {
+      if (!iso) return "";
+      const d = new Date(iso);
+      if (Number.isNaN(d.getTime())) return "";
+      return d.toLocaleString("pt-BR");
+    }
+    function formatDateOnly(iso) {
+      if (!iso) return "";
+      const d = new Date(iso);
+      if (Number.isNaN(d.getTime())) return "";
+      return d.toLocaleDateString("pt-BR");
+    }
+    function parseNumber(value) {
+      if (value === "" || value == null) return 0;
+      const v = parseFloat(String(value).replace(",", "."));
+      return Number.isNaN(v) ? 0 : v;
+    }
+
+    function computeFilamentStats(filamentId) {
+      const filament = state.filaments.find(f => f.id === filamentId);
+      if (!filament) return { purchased: 0, usedGoodKg: 0, wastedKg: 0, totalUsedKg: 0 };
+      const purchased = filament.totalPurchasedKg || 0;
+      let usedGoodKg = 0;
+      let wastedKg = 0;
+
+      state.prints.forEach(p => {
+        if (p.filamentId !== filamentId) return;
+        const kg = (p.grams || 0) / 1000;
+        if (p.status === "erro") wastedKg += kg; else usedGoodKg += kg;
+      });
+
+      const totalUsedKg = usedGoodKg + wastedKg;
+      return { purchased, usedGoodKg, wastedKg, totalUsedKg };
+    }
+
+    function computeFilamentStockKg(filamentId) {
+      const stats = computeFilamentStats(filamentId);
+      let stock = stats.purchased - stats.totalUsedKg;
+      if (stock < 0) stock = 0;
+      return stock;
+    }
+
+    function computeProductStock(productId) {
+      let produced = 0;
+      state.prints.forEach(p => {
+        if (p.mode !== "estoque" || p.status !== "sucesso" || !Array.isArray(p.stockItems)) return;
+        p.stockItems.forEach(item => {
+          if (item.productId === productId) produced += item.quantity || 0;
+        });
+      });
+      let sold = 0;
+      state.orders.forEach(o => {
+        if (o.productId === productId && o.productionStatus === "concluido") {
+          sold += o.quantity || 1;
+        }
+      });
+      const stock = produced - sold;
+      return stock < 0 ? 0 : stock;
+    }
+
+    function computePrintCosts(print) {
+      const filament = state.filaments.find(f => f.id === print.filamentId);
+      const pricePerKg = filament ? filament.pricePerKg || 0 : 0;
+      const kg = (print.grams || 0) / 1000;
+      const costFilament = kg * pricePerKg;
+      const costEnergy = energiaKwh * ((print.timeMinutes || 0) / 60) * precoKwh;
+      const total = costFilament + costEnergy;
+      return { costFilament, costEnergy, total };
+    }
+
+    function computeOrderNet(order) {
+      const sale = order.salePrice || 0;
+      const feePercent = order.feePercent || 0;
+      const ship = order.shippingCost || 0;
+      const fee = sale * feePercent / 100;
+      const imposto = sale * TAX_IMPOSTO / 100;
+      const embalagem = EMBALAGEM_FIXA;
+      const net = sale - fee - imposto - ship - embalagem;
+      return { fee, imposto, embalagem, net };
+    }
+
+    function computeOrderPrintCost(orderId) {
+      let total = 0;
+      state.prints.forEach(p => {
+        if (!Array.isArray(p.orderIds) || !p.orderIds.includes(orderId)) return;
+        if (p.status !== "sucesso" && p.status !== "erro_parcial") return;
+        const costs = computePrintCosts(p);
+        const divisor = p.orderIds.length || 1;
+        total += costs.total / divisor;
+      });
+      return total;
+    }
+
+    function initTabs() {
+      const buttons = document.querySelectorAll(".tab-btn");
+      const tabs = {
+        cadastros: document.getElementById("tab-cadastros"),
+        fila: document.getElementById("tab-fila"),
+        relatorios: document.getElementById("tab-relatorios")
+      };
+      buttons.forEach(btn => {
+        btn.addEventListener("click", () => {
+          buttons.forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+          const tab = btn.getAttribute("data-tab");
+          Object.keys(tabs).forEach(key => {
+            tabs[key].classList.toggle("active", key === tab);
+          });
+        });
+      });
+    }
+
+    function getUniqueColorsFromFilaments() {
+      const set = new Set();
+      state.filaments.forEach(f => { if (f.color) set.add(f.color); });
+      return Array.from(set);
+    }
+
+    function renderColorSelects() {
+      const colorSelectProduct = document.getElementById("product-color");
+      const colorSelectOrder = document.getElementById("order-color");
+      const colors = getUniqueColorsFromFilaments();
+
+      [colorSelectProduct, colorSelectOrder].forEach((select, idx) => {
+        select.innerHTML = "";
+        const optNone = document.createElement("option");
+        optNone.value = "";
+        optNone.textContent = idx === 0 ? "Sem cor padrão" : (colors.length ? "Selecione a cor" : "Cadastre filamentos primeiro");
+        select.appendChild(optNone);
+        colors.forEach(c => {
+          const opt = document.createElement("option");
+          opt.value = c;
+          opt.textContent = c;
+          select.appendChild(opt);
+        });
+        select.disabled = idx === 1 && !colors.length;
+      });
+    }
+
+    function renderProductSelects() {
+      const productSelectOrder = document.getElementById("order-product");
+      productSelectOrder.innerHTML = "";
+      const placeholder = document.createElement("option");
+      placeholder.value = "";
+      placeholder.textContent = state.products.length ? "Selecione um produto" : "Cadastre produtos primeiro";
+      productSelectOrder.appendChild(placeholder);
+      productSelectOrder.disabled = !state.products.length;
+
+      state.products.forEach(p => {
+        const opt = document.createElement("option");
+        opt.value = p.id;
+        opt.textContent = `${p.sku} · ${p.name}`;
+        productSelectOrder.appendChild(opt);
+      });
+    }
+
+    function renderFilamentSelectForPrints() {
+      const select = document.getElementById("print-filament");
+      select.innerHTML = "";
+      if (!state.filaments.length) {
+        const opt = document.createElement("option");
+        opt.value = "";
+        opt.textContent = "Cadastre filamentos primeiro";
+        select.appendChild(opt);
+        select.disabled = true;
+        return;
+      }
+      select.disabled = false;
+      const placeholder = document.createElement("option");
+      placeholder.value = "";
+      placeholder.disabled = true;
+      placeholder.selected = true;
+      placeholder.textContent = "Selecione um filamento";
+      select.appendChild(placeholder);
+      state.filaments.forEach(f => {
+        const opt = document.createElement("option");
+        opt.value = f.id;
+        opt.textContent = `${f.color} · ${f.material}${f.brand ? " · " + f.brand : ""}`;
+        select.appendChild(opt);
+      });
+    }
+
+    function renderOrderSelectForPrints() {
+      const select = document.getElementById("print-orders");
+      select.innerHTML = "";
+      const pending = state.orders.filter(o => o.productionStatus !== "concluido");
+
+      if (!pending.length) {
+        const opt = document.createElement("option");
+        opt.value = "";
+        opt.textContent = "Nenhum pedido pendente na fila";
+        select.appendChild(opt);
+        select.disabled = true;
+        return;
+      }
+      select.disabled = false;
+
+      pending.slice().sort((a,b)=> new Date(a.shipByDate || 0) - new Date(b.shipByDate || 0)).forEach(o => {
+        const product = state.products.find(p => p.id === o.productId);
+        const { net } = computeOrderNet(o);
+        const opt = document.createElement("option");
+        opt.value = o.id;
+        opt.textContent = `${o.shipByDate ? formatDateOnly(o.shipByDate) : "s/ data"} · ${product ? product.sku : "?"} · ${o.color || ""} · ${o.marketplace} · Líq: ${net.toFixed(2)}`;
+        select.appendChild(opt);
+      });
+    }
+
+    function renderFilamentList() {
+      const tbody = document.getElementById("filament-list-body");
+      tbody.innerHTML = "";
+      if (!state.filaments.length) {
+        const tr = document.createElement("tr");
+        const td = document.createElement("td");
+        td.colSpan = 7;
+        td.className = "muted";
+        td.textContent = "Nenhum filamento cadastrado.";
+        tr.appendChild(td);
+        tbody.appendChild(tr);
+        return;
+      }
+
+      state.filaments.forEach(f => {
+        const stats = computeFilamentStats(f.id);
+        const stockKg = computeFilamentStockKg(f.id);
+
+        const tr = document.createElement("tr");
+        const colorTd = document.createElement("td");
+        colorTd.textContent = f.color;
+        tr.appendChild(colorTd);
+
+        const matTd = document.createElement("td");
+        matTd.textContent = f.material;
+        tr.appendChild(matTd);
+
+        const brandTd = document.createElement("td");
+        brandTd.textContent = f.brand || "-";
+        tr.appendChild(brandTd);
+
+        const priceTd = document.createElement("td");
+        priceTd.textContent = (f.pricePerKg || 0).toFixed(2);
+        tr.appendChild(priceTd);
+
+        const purchasedTd = document.createElement("td");
+        purchasedTd.textContent = formatKg(stats.purchased);
+        tr.appendChild(purchasedTd);
+
+        const stockTd = document.createElement("td");
+        stockTd.textContent = formatKg(stockKg);
+        tr.appendChild(stockTd);
+
+        const actionsTd = document.createElement("td");
+        const editBtn = document.createElement("button");
+        editBtn.type = "button";
+        editBtn.className = "btn-small btn-edit";
+        editBtn.textContent = "Editar";
+        editBtn.onclick = () => editFilament(f.id);
+
+        const delBtn = document.createElement("button");
+        delBtn.type = "button";
+        delBtn.className = "btn-small btn-danger";
+        delBtn.style.marginLeft = "0.4rem";
+        delBtn.textContent = "Excluir";
+        delBtn.onclick = () => deleteFilament(f.id);
+
+        actionsTd.appendChild(editBtn);
+        actionsTd.appendChild(delBtn);
+        tr.appendChild(actionsTd);
+
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderProductList() {
+      const tbody = document.getElementById("product-list-body");
+      tbody.innerHTML = "";
+      if (!state.products.length) {
+        const tr = document.createElement("tr");
+        const td = document.createElement("td");
+        td.colSpan = 6;
+        td.className = "muted";
+        td.textContent = "Nenhum produto cadastrado.";
+        tr.appendChild(td);
+        tbody.appendChild(tr);
+        return;
+      }
+
+      state.products.forEach(p => {
+        const tr = document.createElement("tr");
+        const skuTd = document.createElement("td");
+        skuTd.textContent = p.sku;
+        tr.appendChild(skuTd);
+
+        const nameTd = document.createElement("td");
+        nameTd.textContent = p.name;
+        tr.appendChild(nameTd);
+
+        const colorTd = document.createElement("td");
+        colorTd.textContent = p.defaultColor || "-";
+        tr.appendChild(colorTd);
+
+        const costTd = document.createElement("td");
+        costTd.textContent = (p.avgPrintCost || 0).toFixed(2);
+        tr.appendChild(costTd);
+
+        const stockTd = document.createElement("td");
+        stockTd.textContent = computeProductStock(p.id);
+        tr.appendChild(stockTd);
+
+        const actionsTd = document.createElement("td");
+        const editBtn = document.createElement("button");
+        editBtn.type = "button";
+        editBtn.className = "btn-small btn-edit";
+        editBtn.textContent = "Editar";
+        editBtn.onclick = () => editProduct(p.id);
+
+        const delBtn = document.createElement("button");
+        delBtn.type = "button";
+        delBtn.className = "btn-small btn-danger";
+        delBtn.style.marginLeft = "0.4rem";
+        delBtn.textContent = "Excluir";
+        delBtn.onclick = () => deleteProduct(p.id);
+
+        actionsTd.appendChild(editBtn);
+        actionsTd.appendChild(delBtn);
+        tr.appendChild(actionsTd);
+
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderOrders() {
+      const tbody = document.getElementById("orders-body");
+      tbody.innerHTML = "";
+      if (!state.orders.length) {
+        const tr = document.createElement("tr");
+        const td = document.createElement("td");
+        td.colSpan = 12;
+        td.className = "muted";
+        td.textContent = "Nenhuma venda/pedido cadastrado.";
+        tr.appendChild(td);
+        tbody.appendChild(tr);
+        return;
+      }
+
+      state.orders.slice().sort((a,b)=> new Date(b.saleDate || b.createdAt || 0) - new Date(a.saleDate || a.createdAt || 0)).forEach(o => {
+        const product = state.products.find(p => p.id === o.productId);
+        const { net } = computeOrderNet(o);
+
+        const tr = document.createElement("tr");
+        const saleDateTd = document.createElement("td");
+        saleDateTd.textContent = o.saleDate ? formatDateOnly(o.saleDate) : "-";
+        tr.appendChild(saleDateTd);
+
+        const prodTd = document.createElement("td");
+        prodTd.textContent = product ? `${product.sku} · ${product.name}` : "Produto removido";
+        tr.appendChild(prodTd);
+
+        const colorTd = document.createElement("td");
+        colorTd.textContent = o.color || "-";
+        tr.appendChild(colorTd);
+
+        const mktTd = document.createElement("td");
+        mktTd.textContent = o.marketplace || "-";
+        tr.appendChild(mktTd);
+
+        const saleTd = document.createElement("td");
+        saleTd.textContent = (o.salePrice || 0).toFixed(2);
+        tr.appendChild(saleTd);
+
+        const feeTd = document.createElement("td");
+        feeTd.textContent = (o.feePercent || 0).toFixed(2);
+        tr.appendChild(feeTd);
+
+        const taxTd = document.createElement("td");
+        taxTd.textContent = TAX_IMPOSTO.toFixed(2);
+        tr.appendChild(taxTd);
+
+        const shipTd = document.createElement("td");
+        shipTd.textContent = (o.shippingCost || 0).toFixed(2);
+        tr.appendChild(shipTd);
+
+        const netTd = document.createElement("td");
+        netTd.textContent = net.toFixed(2);
+        tr.appendChild(netTd);
+
+        const shipDateTd = document.createElement("td");
+        shipDateTd.textContent = o.shipByDate ? formatDateOnly(o.shipByDate) : "-";
+        tr.appendChild(shipDateTd);
+
+        const statusTd = document.createElement("td");
+        const chip = document.createElement("span");
+        chip.className = "chip chip-info";
+        const dot = document.createElement("span");
+        dot.className = "chip-dot";
+        const text = document.createElement("span");
+        let statusName = "não concluído";
+        if (o.productionStatus === "em_impressao") statusName = "em impressão";
+        if (o.productionStatus === "concluido") statusName = "concluído";
+        text.textContent = statusName;
+        chip.appendChild(dot);
+        chip.appendChild(text);
+        statusTd.appendChild(chip);
+        tr.appendChild(statusTd);
+
+        const actionsTd = document.createElement("td");
+        const editBtn = document.createElement("button");
+        editBtn.type = "button";
+        editBtn.className = "btn-small btn-edit";
+        editBtn.textContent = "Editar";
+        editBtn.onclick = () => editOrder(o.id);
+
+        const delBtn = document.createElement("button");
+        delBtn.type = "button";
+        delBtn.className = "btn-small btn-danger";
+        delBtn.style.marginLeft = "0.4rem";
+        delBtn.textContent = "Excluir";
+        delBtn.onclick = () => deleteOrder(o.id);
+
+        actionsTd.appendChild(editBtn);
+        actionsTd.appendChild(delBtn);
+        tr.appendChild(actionsTd);
+
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderQueue() {
+      const tbody = document.getElementById("queue-body");
+      tbody.innerHTML = "";
+      const pending = state.orders.filter(o => o.productionStatus !== "concluido");
+      if (!pending.length) {
+        const tr = document.createElement("tr");
+        const td = document.createElement("td");
+        td.colSpan = 6;
+        td.className = "muted";
+        td.textContent = "Nenhum pedido pendente na fila.";
+        tr.appendChild(td);
+        tbody.appendChild(tr);
+        return;
+      }
+
+      pending.slice().sort((a,b)=> new Date(a.shipByDate || 0) - new Date(b.shipByDate || 0)).forEach(o => {
+        const product = state.products.find(p => p.id === o.productId);
+        const { net } = computeOrderNet(o);
+        const tr = document.createElement("tr");
+
+        const shipTd = document.createElement("td");
+        shipTd.textContent = o.shipByDate ? formatDateOnly(o.shipByDate) : "-";
+        tr.appendChild(shipTd);
+
+        const prodTd = document.createElement("td");
+        prodTd.textContent = product ? `${product.sku} · ${product.name}` : "Produto removido";
+        tr.appendChild(prodTd);
+
+        const colorTd = document.createElement("td");
+        colorTd.textContent = o.color || "-";
+        tr.appendChild(colorTd);
+
+        const mktTd = document.createElement("td");
+        mktTd.textContent = o.marketplace || "-";
+        tr.appendChild(mktTd);
+
+        const netTd = document.createElement("td");
+        netTd.textContent = net.toFixed(2);
+        tr.appendChild(netTd);
+
+        const statusTd = document.createElement("td");
+        const chip = document.createElement("span");
+        chip.className = "chip chip-info";
+        const dot = document.createElement("span");
+        dot.className = "chip-dot";
+        const text = document.createElement("span");
+        let statusName = "não concluído";
+        if (o.productionStatus === "em_impressao") statusName = "em impressão";
+        if (o.productionStatus === "concluido") statusName = "concluído";
+        text.textContent = statusName;
+        chip.appendChild(dot);
+        chip.appendChild(text);
+        statusTd.appendChild(chip);
+        tr.appendChild(statusTd);
+
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderPrints() {
+      const tbody = document.getElementById("prints-body");
+      tbody.innerHTML = "";
+      if (!state.prints.length) {
+        const tr = document.createElement("tr");
+        const td = document.createElement("td");
+        td.colSpan = 11;
+        td.className = "muted";
+        td.textContent = "Nenhuma impressão registrada.";
+        tr.appendChild(td);
+        tbody.appendChild(tr);
+        return;
+      }
+
+      state.prints.slice().sort((a,b)=> new Date(b.createdAt || 0) - new Date(a.createdAt || 0)).forEach(p => {
+        const filament = state.filaments.find(f => f.id === p.filamentId);
+        const costs = computePrintCosts(p);
+
+        const tr = document.createElement("tr");
+        const dateTd = document.createElement("td");
+        dateTd.textContent = formatDate(p.createdAt);
+        tr.appendChild(dateTd);
+
+        const nameTd = document.createElement("td");
+        nameTd.textContent = p.name || "-";
+        tr.appendChild(nameTd);
+
+        const filTd = document.createElement("td");
+        filTd.textContent = filament ? `${filament.color} · ${filament.material}` : "(filamento removido)";
+        tr.appendChild(filTd);
+
+        const gramsTd = document.createElement("td");
+        gramsTd.textContent = (p.grams || 0).toFixed(2);
+        tr.appendChild(gramsTd);
+
+        const timeTd = document.createElement("td");
+        timeTd.textContent = (p.timeMinutes || 0) + " min";
+        tr.appendChild(timeTd);
+
+        const statusTd = document.createElement("td");
+        const chip = document.createElement("span");
+        let chipClass = "chip chip-info";
+        let statusText = "em impressão";
+        if (p.status === "sucesso") { chipClass = "chip chip-success"; statusText = "sucesso"; }
+        if (p.status === "erro") { chipClass = "chip chip-error"; statusText = "erro"; }
+        if (p.status === "erro_parcial") { chipClass = "chip chip-warning"; statusText = "erro parcial"; }
+        chip.className = chipClass;
+        const dot = document.createElement("span");
+        dot.className = "chip-dot";
+        const text = document.createElement("span");
+        text.textContent = statusText;
+        chip.appendChild(dot);
+        chip.appendChild(text);
+        statusTd.appendChild(chip);
+        tr.appendChild(statusTd);
+
+        const relTd = document.createElement("td");
+        if (p.mode === "pedidos") {
+          if (p.orderIds && p.orderIds.length) {
+            const labels = p.orderIds.map(id => {
+              const o = state.orders.find(x => x.id === id);
+              const product = o ? state.products.find(pr => pr.id === o.productId) : null;
+              return o && product ? product.sku : "(pedido removido)";
+            });
+            relTd.textContent = "Pedidos: " + labels.join(", ");
+          } else {
+            relTd.textContent = "Pedidos: -";
+          }
+        } else if (p.mode === "estoque") {
+          if (p.stockItems && p.stockItems.length) {
+            const labels = p.stockItems.map(item => {
+              const prod = state.products.find(pr => pr.id === item.productId);
+              return prod ? `${prod.sku} x${item.quantity}` : "(produto removido)";
+            });
+            relTd.textContent = "Estoque: " + labels.join(", ");
+          } else {
+            relTd.textContent = "Estoque: -";
+          }
+        } else {
+          relTd.textContent = "-";
+        }
+        tr.appendChild(relTd);
+
+        const filCostTd = document.createElement("td");
+        filCostTd.textContent = costs.costFilament.toFixed(2);
+        tr.appendChild(filCostTd);
+
+        const energyCostTd = document.createElement("td");
+        energyCostTd.textContent = costs.costEnergy.toFixed(2);
+        tr.appendChild(energyCostTd);
+
+        const totalTd = document.createElement("td");
+        totalTd.textContent = costs.total.toFixed(2);
+        tr.appendChild(totalTd);
+
+        const actionsTd = document.createElement("td");
+        const successBtn = document.createElement("button");
+        successBtn.type = "button";
+        successBtn.className = "btn-small btn-edit";
+        successBtn.textContent = "Sucesso";
+        successBtn.onclick = () => markPrintStatus(p.id, "sucesso");
+
+        const errorBtn = document.createElement("button");
+        errorBtn.type = "button";
+        errorBtn.className = "btn-small btn-danger";
+        errorBtn.style.marginLeft = "0.2rem";
+        errorBtn.textContent = "Erro";
+        errorBtn.onclick = () => markPrintStatus(p.id, "erro");
+
+        const partialBtn = document.createElement("button");
+        partialBtn.type = "button";
+        partialBtn.className = "btn-small btn-secondary";
+        partialBtn.style.marginLeft = "0.2rem";
+        partialBtn.textContent = "Erro parcial";
+        partialBtn.onclick = () => markPrintStatus(p.id, "erro_parcial");
+
+        const delBtn = document.createElement("button");
+        delBtn.type = "button";
+        delBtn.className = "btn-small btn-danger";
+        delBtn.style.marginLeft = "0.4rem";
+        delBtn.textContent = "Excluir";
+        delBtn.onclick = () => deletePrint(p.id);
+
+        actionsTd.appendChild(successBtn);
+        actionsTd.appendChild(errorBtn);
+        actionsTd.appendChild(partialBtn);
+        actionsTd.appendChild(delBtn);
+        tr.appendChild(actionsTd);
+
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderFilamentReport() {
+      const tbody = document.getElementById("report-body");
+      tbody.innerHTML = "";
+      let totalGood = 0;
+      let totalWaste = 0;
+      let totalStock = 0;
+      const now = Date.now();
+
+      if (!state.filaments.length) {
+        const tr = document.createElement("tr");
+        const td = document.createElement("td");
+        td.colSpan = 9;
+        td.className = "muted";
+        td.textContent = "Nenhum filamento cadastrado para relatório.";
+        tr.appendChild(td);
+        tbody.appendChild(tr);
+      } else {
+        state.filaments.forEach(f => {
+          const stats = computeFilamentStats(f.id);
+          const stock = computeFilamentStockKg(f.id);
+
+          totalGood += stats.usedGoodKg;
+          totalWaste += stats.wastedKg;
+          totalStock += stock;
+
+          let firstUse = null;
+          let lastUse = null;
+          state.prints.forEach(p => {
+            if (p.filamentId !== f.id) return;
+            const t = new Date(p.createdAt || now).getTime();
+            if (!firstUse || t < firstUse) firstUse = t;
+            if (!lastUse || t > lastUse) lastUse = t;
+          });
+
+          let avgPerDay = 0;
+          if (stats.totalUsedKg > 0 && firstUse && lastUse) {
+            const days = Math.max(1, Math.round((lastUse - firstUse) / (1000 * 60 * 60 * 24)) + 1);
+            avgPerDay = stats.totalUsedKg / days;
+          }
+
+          const tr = document.createElement("tr");
+          const colorTd = document.createElement("td");
+          colorTd.textContent = f.color;
+          tr.appendChild(colorTd);
+
+          const matTd = document.createElement("td");
+          matTd.textContent = f.material;
+          tr.appendChild(matTd);
+
+          const brandTd = document.createElement("td");
+          brandTd.textContent = f.brand || "-";
+          tr.appendChild(brandTd);
+
+          const purchasedTd = document.createElement("td");
+          purchasedTd.textContent = formatKg(stats.purchased);
+          tr.appendChild(purchasedTd);
+
+          const usedTd = document.createElement("td");
+          usedTd.textContent = formatKg(stats.usedGoodKg);
+          tr.appendChild(usedTd);
+
+          const wasteTd = document.createElement("td");
+          wasteTd.textContent = formatKg(stats.wastedKg);
+          tr.appendChild(wasteTd);
+
+          const stockTd = document.createElement("td");
+          stockTd.textContent = formatKg(stock);
+          tr.appendChild(stockTd);
+
+          const avgTd = document.createElement("td");
+          avgTd.textContent = formatKg(avgPerDay);
+          tr.appendChild(avgTd);
+
+          const statusTd = document.createElement("td");
+          const chip = document.createElement("span");
+          const dot = document.createElement("span");
+          dot.className = "chip-dot";
+          const text = document.createElement("span");
+          if (stock < 4) {
+            chip.className = "chip chip-warning";
+            text.textContent = "Necessário reposição";
+          } else {
+            chip.className = "chip chip-success";
+            text.textContent = "OK";
+          }
+          chip.appendChild(dot);
+          chip.appendChild(text);
+          statusTd.appendChild(chip);
+          tr.appendChild(statusTd);
+
+          tbody.appendChild(tr);
+        });
+      }
+
+      document.getElementById("total-good").textContent = formatKg(totalGood) + " kg";
+      document.getElementById("total-waste").textContent = formatKg(totalWaste) + " kg";
+      document.getElementById("total-stock").textContent = formatKg(totalStock) + " kg";
+    }
+
+    function renderSalesKPIs() {
+      let totalSales = 0;
+      let totalNet = 0;
+      let totalPrintCost = 0;
+      const byMarketplace = {};
+      const byProduct = {};
+      const daily = {};
+
+      state.orders.forEach(o => {
+        const { net } = computeOrderNet(o);
+        const sale = o.salePrice || 0;
+        const mkt = o.marketplace || "Outros";
+        const saleDateKey = o.saleDate ? o.saleDate.slice(0,10) : (o.createdAt ? o.createdAt.slice(0,10) : null);
+        const printCost = computeOrderPrintCost(o.id);
+
+        totalSales += sale;
+        totalNet += net;
+        totalPrintCost += printCost;
+
+        if (!byMarketplace[mkt]) {
+          byMarketplace[mkt] = { sales: 0, net: 0, printCost: 0 };
+        }
+        byMarketplace[mkt].sales += sale;
+        byMarketplace[mkt].net += net;
+        byMarketplace[mkt].printCost += printCost;
+
+        if (!byProduct[o.productId]) {
+          byProduct[o.productId] = { qty: 0, sales: 0, net: 0 };
+        }
+        byProduct[o.productId].qty += o.quantity || 1;
+        byProduct[o.productId].sales += sale;
+        byProduct[o.productId].net += net;
+
+        if (saleDateKey) {
+          if (!daily[saleDateKey]) daily[saleDateKey] = { gross: 0, net: 0 };
+          daily[saleDateKey].gross += sale;
+          daily[saleDateKey].net += net;
+        }
+      });
+
+      const margin = totalNet - totalPrintCost;
+
+      document.getElementById("kpi-sales-gross").textContent = formatMoney(totalSales);
+      document.getElementById("kpi-sales-net").textContent = formatMoney(totalNet);
+      document.getElementById("kpi-print-cost").textContent = formatMoney(totalPrintCost);
+      document.getElementById("kpi-margin").textContent = formatMoney(margin);
+
+      const tbodyMkt = document.getElementById("kpi-marketplace-body");
+      tbodyMkt.innerHTML = "";
+      const mktNames = Object.keys(byMarketplace);
+      if (!mktNames.length) {
+        const tr = document.createElement("tr");
+        const td = document.createElement("td");
+        td.colSpan = 5;
+        td.className = "muted";
+        td.textContent = "Nenhuma venda cadastrada.";
+        tr.appendChild(td);
+        tbodyMkt.appendChild(tr);
+      } else {
+        mktNames.forEach(mkt => {
+          const row = byMarketplace[mkt];
+          const m = row.net - row.printCost;
+          const tr = document.createElement("tr");
+          const mktTd = document.createElement("td"); mktTd.textContent = mkt; tr.appendChild(mktTd);
+          const sTd = document.createElement("td"); sTd.textContent = row.sales.toFixed(2); tr.appendChild(sTd);
+          const nTd = document.createElement("td"); nTd.textContent = row.net.toFixed(2); tr.appendChild(nTd);
+          const cTd = document.createElement("td"); cTd.textContent = row.printCost.toFixed(2); tr.appendChild(cTd);
+          const mTd = document.createElement("td"); mTd.textContent = m.toFixed(2); tr.appendChild(mTd);
+          tbodyMkt.appendChild(tr);
+        });
+      }
+
+      const tbodyProd = document.getElementById("kpi-products-body");
+      tbodyProd.innerHTML = "";
+      const productIds = Object.keys(byProduct);
+      if (!productIds.length) {
+        const tr = document.createElement("tr");
+        const td = document.createElement("td");
+        td.colSpan = 4;
+        td.className = "muted";
+        td.textContent = "Nenhuma venda para listar produtos.";
+        tr.appendChild(td);
+        tbodyProd.appendChild(tr);
+      } else {
+        productIds.sort((a,b)=> byProduct[b].qty - byProduct[a].qty);
+        productIds.forEach(pid => {
+          const row = byProduct[pid];
+          const prod = state.products.find(p => p.id === pid);
+          const tr = document.createElement("tr");
+          const prodTd = document.createElement("td");
+          prodTd.textContent = prod ? `${prod.sku} · ${prod.name}` : "Produto removido";
+          tr.appendChild(prodTd);
+          const qtyTd = document.createElement("td");
+          qtyTd.textContent = row.qty;
+          tr.appendChild(qtyTd);
+          const sTd = document.createElement("td");
+          sTd.textContent = row.sales.toFixed(2);
+          tr.appendChild(sTd);
+          const nTd = document.createElement("td");
+          nTd.textContent = row.net.toFixed(2);
+          tr.appendChild(nTd);
+          tbodyProd.appendChild(tr);
+        });
+      }
+
+      renderRevenueChart(daily);
+    }
+
+    function renderRevenueChart(daily) {
+      const canvas = document.getElementById("revenue-chart");
+      if (!canvas || !canvas.getContext) return;
+      const ctx = canvas.getContext("2d");
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      const dates = Object.keys(daily).sort();
+      if (!dates.length) {
+        ctx.fillStyle = "#9ca3af";
+        ctx.font = "12px system-ui";
+        ctx.fillText("Nenhuma venda para desenhar o gráfico.", 10, 20);
+        return;
+      }
+
+      const valuesGross = dates.map(d => daily[d].gross);
+      const valuesNet = dates.map(d => daily[d].net);
+      const maxVal = Math.max(...valuesGross, ...valuesNet) || 1;
+
+      const paddingLeft = 40, paddingRight = 10, paddingTop = 20, paddingBottom = 30;
+      const w = canvas.width, h = canvas.height;
+      const chartWidth = w - paddingLeft - paddingRight;
+      const chartHeight = h - paddingTop - paddingBottom;
+
+      ctx.strokeStyle = "#374151";
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(paddingLeft, paddingTop);
+      ctx.lineTo(paddingLeft, h - paddingBottom);
+      ctx.lineTo(w - paddingRight, h - paddingBottom);
+      ctx.stroke();
+
+      ctx.fillStyle = "#9ca3af";
+      ctx.font = "10px system-ui";
+      ctx.fillText(maxVal.toFixed(0), 5, paddingTop + 5);
+      ctx.fillText("0", 10, h - paddingBottom);
+
+      const stepX = dates.length > 1 ? chartWidth / (dates.length - 1) : 0;
+      const yFor = (value) => h - paddingBottom - (value / maxVal) * chartHeight;
+
+      ctx.beginPath();
+      dates.forEach((d,i) => {
+        const x = paddingLeft + stepX * i;
+        const y = yFor(daily[d].gross);
+        if (i === 0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+      });
+      ctx.strokeStyle = "#22c55e";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      ctx.beginPath();
+      dates.forEach((d,i) => {
+        const x = paddingLeft + stepX * i;
+        const y = yFor(daily[d].net);
+        if (i === 0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+      });
+      ctx.strokeStyle = "#0ea5e9";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      ctx.fillStyle = "#9ca3af";
+      ctx.font = "9px system-ui";
+      dates.forEach((d,i) => {
+        const x = paddingLeft + stepX * i;
+        const label = d.slice(5).split("-").reverse().join("/");
+        ctx.save();
+        ctx.translate(x, h - paddingBottom + 10);
+        ctx.rotate(-Math.PI / 4);
+        ctx.fillText(label, 0, 0);
+        ctx.restore();
+      });
+
+      ctx.fillStyle = "#22c55e";
+      ctx.fillRect(w - 150, paddingTop, 8, 8);
+      ctx.fillStyle = "#e5e7eb";
+      ctx.fillText("Bruto", w - 140, paddingTop + 8);
+
+      ctx.fillStyle = "#0ea5e9";
+      ctx.fillRect(w - 80, paddingTop, 8, 8);
+      ctx.fillStyle = "#e5e7eb";
+      ctx.fillText("Líquido", w - 70, paddingTop + 8);
+    }
+
+    function editFilament(id) {
+      const f = state.filaments.find(x => x.id === id);
+      if (!f) return;
+      document.getElementById("filament-edit-id").value = f.id;
+      document.getElementById("filament-color").value = f.color;
+      document.getElementById("filament-material").value = f.material;
+      document.getElementById("filament-brand").value = f.brand || "";
+      document.getElementById("filament-price").value = f.pricePerKg || "";
+      document.getElementById("filament-qty-total").value = f.totalPurchasedKg || "";
+    }
+
+    function deleteFilament(id) {
+      if (!confirm("Excluir este filamento? Impressões associadas ficarão sem referência.")) return;
+      state.filaments = state.filaments.filter(f => f.id !== id);
+      saveState();
+      renderFilamentList();
+      renderFilamentSelectForPrints();
+      renderColorSelects();
+      renderFilamentReport();
+      renderPrints();
+    }
+
+    function handleFilamentFormSubmit(e) {
+      e.preventDefault();
+      const editId = document.getElementById("filament-edit-id").value;
+      const color = document.getElementById("filament-color").value.trim();
+      const material = document.getElementById("filament-material").value.trim();
+      const brand = document.getElementById("filament-brand").value.trim();
+      const pricePerKg = parseNumber(document.getElementById("filament-price").value);
+      const totalQty = parseNumber(document.getElementById("filament-qty-total").value);
+
+      if (!color || !material || pricePerKg <= 0 || totalQty < 0) {
+        alert("Preencha os campos de filamento com valores válidos.");
+        return;
+      }
+
+      if (editId) {
+        const f = state.filaments.find(x => x.id === editId);
+        if (f) {
+          f.color = color;
+          f.material = material;
+          f.brand = brand;
+          f.pricePerKg = pricePerKg;
+          f.totalPurchasedKg = totalQty;
+        }
+      } else {
+        state.filaments.push({
+          id: generateId(),
+          color,
+          material,
+          brand,
+          pricePerKg,
+          totalPurchasedKg: totalQty
+        });
+      }
+
+      saveState();
+      e.target.reset();
+      document.getElementById("filament-edit-id").value = "";
+      renderFilamentList();
+      renderFilamentSelectForPrints();
+      renderColorSelects();
+      renderFilamentReport();
+    }
+
+    function editProduct(id) {
+      const p = state.products.find(x => x.id === id);
+      if (!p) return;
+      document.getElementById("product-edit-id").value = p.id;
+      document.getElementById("product-sku").value = p.sku;
+      document.getElementById("product-name").value = p.name;
+      document.getElementById("product-color").value = p.defaultColor || "";
+      document.getElementById("product-avg-cost").value = p.avgPrintCost || "";
+    }
+
+    function deleteProduct(id) {
+      if (!confirm("Excluir este produto? Pedidos vinculados continuarão, mas sem referência ao produto.")) return;
+      state.products = state.products.filter(p => p.id !== id);
+      saveState();
+      renderProductList();
+      renderProductSelects();
+      renderOrders();
+      renderQueue();
+    }
+
+    function handleProductFormSubmit(e) {
+      e.preventDefault();
+      const editId = document.getElementById("product-edit-id").value;
+      const sku = document.getElementById("product-sku").value.trim();
+      const name = document.getElementById("product-name").value.trim();
+      const defaultColor = document.getElementById("product-color").value || "";
+      const avgPrintCost = parseNumber(document.getElementById("product-avg-cost").value);
+
+      if (!sku || !name) {
+        alert("SKU e nome do produto são obrigatórios.");
+        return;
+      }
+
+      if (editId) {
+        const p = state.products.find(x => x.id === editId);
+        if (p) {
+          p.sku = sku;
+          p.name = name;
+          p.defaultColor = defaultColor || "";
+          p.avgPrintCost = avgPrintCost || 0;
+        }
+      } else {
+        state.products.push({
+          id: generateId(),
+          sku,
+          name,
+          defaultColor: defaultColor || "",
+          avgPrintCost: avgPrintCost || 0
+        });
+      }
+
+      saveState();
+      e.target.reset();
+      document.getElementById("product-edit-id").value = "";
+      renderProductList();
+      renderProductSelects();
+    }
+
+    function editOrder(id) {
+      const o = state.orders.find(x => x.id === id);
+      if (!o) return;
+      document.getElementById("order-edit-id").value = o.id;
+      document.getElementById("order-product").value = o.productId || "";
+      document.getElementById("order-color").value = o.color || "";
+      document.getElementById("order-marketplace").value = o.marketplace || "";
+      document.getElementById("order-sale-price").value = o.salePrice || "";
+      document.getElementById("order-qty").value = o.quantity || 1;
+      document.getElementById("order-fee-percent").value = o.feePercent || "";
+      document.getElementById("order-tax-percent").value = TAX_IMPOSTO;
+      document.getElementById("order-shipping-cost").value = o.shippingCost || "";
+      if (o.saleDate) document.getElementById("order-sale-date").value = o.saleDate.slice(0,10);
+      if (o.shipByDate) document.getElementById("order-ship-date").value = o.shipByDate.slice(0,10);
+    }
+
+    function deleteOrder(id) {
+      if (!confirm("Excluir este pedido? Impressões associadas ficarão sem esse pedido.")) return;
+      state.prints.forEach(p => {
+        if (!Array.isArray(p.orderIds)) return;
+        p.orderIds = p.orderIds.filter(oid => oid !== id);
+      });
+      state.orders = state.orders.filter(o => o.id !== id);
+      saveState();
+      renderOrders();
+      renderQueue();
+      renderOrderSelectForPrints();
+      renderPrints();
+      renderSalesKPIs();
+      renderProductList();
+    }
+
+    function applyMarketplaceDefaults() {
+      const mkt = document.getElementById("order-marketplace").value;
+      const salePrice = parseNumber(document.getElementById("order-sale-price").value);
+      const feeInput = document.getElementById("order-fee-percent");
+      const taxInput = document.getElementById("order-tax-percent");
+      const shipInput = document.getElementById("order-shipping-cost");
+
+      if (mkt) {
+        if (defaultFeeByMarketplace[mkt] != null) {
+          feeInput.value = defaultFeeByMarketplace[mkt];
+        }
+        shipInput.value = defaultShippingByMarketplace(mkt, salePrice).toFixed(2);
+      }
+      taxInput.value = TAX_IMPOSTO.toFixed(2);
+    }
+
+    function handleOrderFormSubmit(e) {
+      e.preventDefault();
+      const editId = document.getElementById("order-edit-id").value;
+      const productId = document.getElementById("order-product").value;
+      const color = document.getElementById("order-color").value;
+      const marketplace = document.getElementById("order-marketplace").value;
+      const salePrice = parseNumber(document.getElementById("order-sale-price").value);
+      const qty = parseInt(document.getElementById("order-qty").value || "1", 10) || 1;
+      let feePercent = parseNumber(document.getElementById("order-fee-percent").value);
+      const shippingCost = parseNumber(document.getElementById("order-shipping-cost").value);
+      const saleDateRaw = document.getElementById("order-sale-date").value;
+      const shipDateRaw = document.getElementById("order-ship-date").value;
+
+      if (!productId || !color || !marketplace || !salePrice || salePrice <= 0 || !saleDateRaw || !shipDateRaw) {
+        alert("Preencha todos os campos obrigatórios da venda.");
+        return;
+      }
+
+      if (!feePercent && feePercent !== 0) {
+        feePercent = defaultFeeByMarketplace[marketplace] || 0;
+      }
+
+      const saleDate = new Date(saleDateRaw).toISOString();
+      const shipByDate = new Date(shipDateRaw).toISOString();
+
+      if (editId) {
+        const o = state.orders.find(x => x.id === editId);
+        if (o) {
+          o.productId = productId;
+          o.color = color;
+          o.marketplace = marketplace;
+          o.salePrice = salePrice;
+          o.quantity = qty;
+          o.feePercent = feePercent;
+          o.taxPercent = TAX_IMPOSTO;
+          o.shippingCost = shippingCost;
+          o.saleDate = saleDate;
+          o.shipByDate = shipByDate;
+        }
+      } else {
+        state.orders.push({
+          id: generateId(),
+          createdAt: new Date().toISOString(),
+          productId,
+          color,
+          marketplace,
+          salePrice,
+          quantity: qty,
+          feePercent,
+          taxPercent: TAX_IMPOSTO,
+          shippingCost,
+          packagingCost: EMBALAGEM_FIXA,
+          saleDate,
+          shipByDate,
+          productionStatus: "na_fila"
+        });
+      }
+
+      saveState();
+      e.target.reset();
+      document.getElementById("order-edit-id").value = "";
+      document.getElementById("order-tax-percent").value = TAX_IMPOSTO.toFixed(2);
+      renderOrders();
+      renderQueue();
+      renderOrderSelectForPrints();
+      renderSalesKPIs();
+      renderProductList();
+    }
+
+    function addStockItemRow() {
+      const container = document.getElementById("stock-items-list");
+      const row = document.createElement("div");
+      row.className = "stock-item-row";
+
+      const select = document.createElement("select");
+      const opt0 = document.createElement("option");
+      opt0.value = "";
+      opt0.textContent = "Selecione um produto";
+      select.appendChild(opt0);
+
+      state.products.forEach(p => {
+        const opt = document.createElement("option");
+        opt.value = p.id;
+        opt.textContent = `${p.sku} · ${p.name}`;
+        select.appendChild(opt);
+      });
+
+      const qtyInput = document.createElement("input");
+      qtyInput.type = "number";
+      qtyInput.min = "1";
+      qtyInput.step = "1";
+      qtyInput.value = "1";
+
+      const removeBtn = document.createElement("button");
+      removeBtn.type = "button";
+      removeBtn.className = "btn-small btn-danger";
+      removeBtn.textContent = "Remover";
+      removeBtn.onclick = () => container.removeChild(row);
+
+      row.appendChild(select);
+      row.appendChild(qtyInput);
+      row.appendChild(removeBtn);
+      container.appendChild(row);
+    }
+
+    function deletePrint(id) {
+      if (!confirm("Excluir esta impressão?")) return;
+      state.prints = state.prints.filter(p => p.id !== id);
+      saveState();
+      renderPrints();
+      renderFilamentReport();
+      renderSalesKPIs();
+      renderProductList();
+    }
+
+    function handlePrintFormSubmit(e) {
+      e.preventDefault();
+      const mode = document.querySelector('input[name="print-mode"]:checked').value;
+      const name = document.getElementById("print-name").value.trim();
+      const filamentId = document.getElementById("print-filament").value;
+      const grams = parseNumber(document.getElementById("print-grams").value);
+      const timeMinutes = parseNumber(document.getElementById("print-time").value);
+
+      if (!filamentId || grams <= 0 || timeMinutes <= 0) {
+        alert("Preencha filamento, gramas e tempo com valores válidos.");
+        return;
+      }
+
+      let orderIds = [];
+      let stockItems = [];
+
+      if (mode === "pedidos") {
+        const ordersSelect = document.getElementById("print-orders");
+        orderIds = Array.from(ordersSelect.selectedOptions).map(opt => opt.value).filter(v => v);
+      } else if (mode === "estoque") {
+        const container = document.getElementById("stock-items-list");
+        const rows = Array.from(container.querySelectorAll(".stock-item-row"));
+        rows.forEach(row => {
+          const sel = row.querySelector("select");
+          const qtyInput = row.querySelector("input");
+          const pid = sel.value;
+          const q = parseInt(qtyInput.value || "0", 10);
+          if (pid && q > 0) stockItems.push({ productId: pid, quantity: q });
+        });
+        if (!stockItems.length) {
+          alert("Adicione ao menos um produto para estoque.");
+          return;
+        }
+      }
+
+      const print = {
+        id: generateId(),
+        createdAt: new Date().toISOString(),
+        name,
+        filamentId,
+        grams,
+        timeMinutes,
+        status: "em_impressao",
+        mode,
+        orderIds,
+        stockItems
+      };
+      state.prints.unshift(print);
+
+      if (mode === "pedidos") {
+        orderIds.forEach(id => {
+          const o = state.orders.find(x => x.id === id);
+          if (o) o.productionStatus = "em_impressao";
+        });
+      }
+
+      saveState();
+      e.target.reset();
+      document.getElementById("print-filament").selectedIndex = 0;
+      document.getElementById("stock-items-list").innerHTML = "";
+      renderPrints();
+      renderOrders();
+      renderQueue();
+      renderFilamentReport();
+      renderSalesKPIs();
+      renderOrderSelectForPrints();
+      renderProductList();
+    }
+
+    function markPrintStatus(printId, status) {
+      const p = state.prints.find(x => x.id === printId);
+      if (!p) return;
+      if (!Array.isArray(p.orderIds)) p.orderIds = [];
+      p.status = status;
+
+      if (p.mode === "pedidos") {
+        if (status === "sucesso") {
+          p.orderIds.forEach(id => {
+            const o = state.orders.find(x => x.id === id);
+            if (o) o.productionStatus = "concluido";
+          });
+        } else if (status === "erro") {
+          p.orderIds.forEach(id => {
+            const o = state.orders.find(x => x.id === id);
+            if (o) o.productionStatus = "na_fila";
+          });
+        } else if (status === "erro_parcial") {
+          p.orderIds.forEach(id => {
+            const o = state.orders.find(x => x.id === id);
+            if (!o) return;
+            const product = state.products.find(pr => pr.id === o.productId);
+            const label = product ? `${product.sku} · ${product.name}` : "produto";
+            const resp = confirm(`Na impressão "${p.name || ""}", a venda do produto ${label} deu problema?\nOK = voltar para fila\nCancelar = considerar concluído`);
+            o.productionStatus = resp ? "na_fila" : "concluido";
+          });
+        }
+      }
+
+      saveState();
+      renderPrints();
+      renderOrders();
+      renderQueue();
+      renderFilamentReport();
+      renderSalesKPIs();
+      renderProductList();
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      loadState();
+      initTabs();
+
+      renderFilamentList();
+      renderProductList();
+      renderProductSelects();
+      renderColorSelects();
+      renderFilamentSelectForPrints();
+      renderOrderSelectForPrints();
+      renderOrders();
+      renderQueue();
+      renderPrints();
+      renderFilamentReport();
+      renderSalesKPIs();
+      document.getElementById("order-tax-percent").value = TAX_IMPOSTO.toFixed(2);
+
+      document.getElementById("filament-form").addEventListener("submit", handleFilamentFormSubmit);
+      document.getElementById("product-form").addEventListener("submit", handleProductFormSubmit);
+      document.getElementById("order-form").addEventListener("submit", handleOrderFormSubmit);
+      document.getElementById("print-form").addEventListener("submit", handlePrintFormSubmit);
+
+      document.getElementById("order-marketplace").addEventListener("change", applyMarketplaceDefaults);
+      document.getElementById("order-sale-price").addEventListener("blur", applyMarketplaceDefaults);
+
+      document.getElementById("add-stock-item-btn").addEventListener("click", addStockItemRow);
+
+      document.querySelectorAll('input[name="print-mode"]').forEach(radio => {
+        radio.addEventListener("change", () => {
+          const mode = document.querySelector('input[name="print-mode"]:checked').value;
+          document.getElementById("print-orders-section").style.display = mode === "pedidos" ? "block" : "none";
+          document.getElementById("stock-items-section").style.display = mode === "estoque" ? "block" : "none";
+        });
+      });
+    });
+  </script>
+</body>
+</html>
