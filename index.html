@@ -697,71 +697,7 @@
     </div>
   </div>
 
-  
-<script type="module">
-  import { loadStateFromRemote, saveStateToRemote } from "./firestore.js";
-
-  // mesma chave que você já usa (mantemos compatibilidade)
-  const STORAGE_KEY = "productionSystem_v4_seeded";
-
-  async  catch(e){}
-        if (typeof renderAll === "function") renderAll();
-        return;
-      }
-    } catch (e) {
-      console.warn("Erro ao buscar state remoto -> fallback para localStorage", e);
-    }
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        if (parsed) {
-          if (Array.isArray(parsed.filaments)) state.filaments = parsed.filaments;
-          if (Array.isArray(parsed.products))  state.products  = parsed.products;
-          if (Array.isArray(parsed.orders))    state.orders    = parsed.orders;
-          if (Array.isArray(parsed.prints))    state.prints    = parsed.prints;
-          if (typeof renderAll === "function") renderAll();
-          return;
-        }
-      }
-    } catch (e) {
-      console.warn("Erro ao ler localStorage:", e);
-    }
-    try {
-      state.filaments = initialFilaments.map(f => ({ ...f }));
-      state.products  = initialProducts.map(p => ({ ...p }));
-      state.orders = [];
-      state.prints = [];
-      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e){}
-      if (typeof renderAll === "function") renderAll();
-    } catch (e) {
-      console.error("Erro ao inicializar dados locais:", e);
-    }
-  }
-
-  async  catch (e) {
-      console.error("Erro ao salvar no localStorage:", e);
-    }
-    try {
-      saveStateToRemote(state).then(ok => {
-        if (!ok) console.warn("Não foi possível salvar state no Firestore agora.");
-      }).catch(err => {
-        console.warn("saveStateToRemote erro:", err);
-      });
-    } catch (e) {
-      console.warn("Erro ao iniciar saveStateToRemote:", e);
-    }
-  }
-
-  window.loadState = loadState;
-  window.saveState = saveState;
-  window.saveStateToRemote = saveStateToRemote;
-  window.loadStateFromRemote = loadStateFromRemote;
-</script>
-
-<!-- WARNING: automatic removal of original loadState/saveState did not find any matches. If duplicates remain, the injected module may be overridden by existing functions. -->
-
-<script>
+  <script>
     const STORAGE_KEY = "productionSystem_v4_seeded";
     const energiaKwh = 0.2;
     const precoKwh = 0.95;
@@ -835,7 +771,18 @@
       prints: []
     };
 
-    
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (parsed) {
+            if (Array.isArray(parsed.filaments)) state.filaments = parsed.filaments;
+            if (Array.isArray(parsed.products)) state.products = parsed.products;
+            if (Array.isArray(parsed.orders)) state.orders = parsed.orders;
+            if (Array.isArray(parsed.prints)) state.prints = parsed.prints;
+            return;
+          }
         }
       } catch (e) {
         console.error("Erro ao carregar dados:", e);
@@ -848,7 +795,10 @@
       saveState();
     }
 
-     catch (e) {
+    function saveState() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      } catch (e) {
         console.error("Erro ao salvar dados:", e);
       }
     }
@@ -2165,5 +2115,13 @@
       });
     });
   </script>
+
+<script type="module">
+  import { loadStateFromRemote, saveStateToRemote } from "./firestore.js";
+  // Expose helpers so the existing code can call them if present
+  window.loadStateFromRemote = loadStateFromRemote;
+  window.saveStateToRemote = saveStateToRemote;
+</script>
+
 </body>
 </html>
