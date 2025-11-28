@@ -2183,21 +2183,11 @@
       renderProductList();
     }
 
-    document.addEventListener("DOMContentLoaded", () => {
-      loadState();
-      initTabs();
+    document.addEventListener("DOMContentLoaded", async () => {
+    await loadState();   // carrega Firestore OU localStorage
+    initTabs();          // inicializa as abas
+});
 
-      renderFilamentList();
-      renderProductList();
-      renderProductSelects();
-      renderColorSelects();
-      renderFilamentSelectForPrints();
-      renderOrderSelectForPrints();
-      renderOrders();
-      renderQueue();
-      renderPrints();
-      renderFilamentReport();
-      renderSalesKPIs();
       document.getElementById("order-tax-percent").value = TAX_IMPOSTO.toFixed(2);
 
       document.getElementById("filament-form").addEventListener("submit", handleFilamentFormSubmit);
@@ -2221,3 +2211,4 @@
   </script>
 </body>
 </html>
+
