@@ -5,7 +5,7 @@ import { getFirestore } from "https://www.gstatic.com/firebasejs/10.8.0/firebase
 
 // Configuração do Firebase da sua aplicação
 const firebaseConfig = {
-  apiKey: "AIzaSyBQ-3TW0z2K7M3eSa r21e8evWnJCRk9NBw",
+  apiKey: "AIzaSyBQ-3TW0z2K7M3eSar21e8evWnJCRk9NBw",
   authDomain: "dados-controle-de-filamento.firebaseapp.com",
   projectId: "dados-controle-de-filamento",
   storageBucket: "dados-controle-de-filamento.firebasestorage.app",
