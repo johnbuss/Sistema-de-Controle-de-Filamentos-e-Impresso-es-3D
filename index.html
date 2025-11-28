@@ -697,7 +697,82 @@
     </div>
   </div>
 
-  <script>
+  
+<script type="module">
+  import { loadStateFromRemote, saveStateToRemote } from "./firestore.js";
+
+  // mesma chave que você já usa (mantemos compatibilidade)
+  const STORAGE_KEY = "productionSystem_v4_seeded";
+
+  async function loadState() {
+    try {
+      const remote = await loadStateFromRemote();
+      if (remote) {
+        state.filaments = remote.filaments;
+        state.products  = remote.products;
+        state.orders    = remote.orders;
+        state.prints    = remote.prints;
+        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e){}
+        if (typeof renderAll === "function") renderAll();
+        return;
+      }
+    } catch (e) {
+      console.warn("Erro ao buscar state remoto -> fallback para localStorage", e);
+    }
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed) {
+          if (Array.isArray(parsed.filaments)) state.filaments = parsed.filaments;
+          if (Array.isArray(parsed.products))  state.products  = parsed.products;
+          if (Array.isArray(parsed.orders))    state.orders    = parsed.orders;
+          if (Array.isArray(parsed.prints))    state.prints    = parsed.prints;
+          if (typeof renderAll === "function") renderAll();
+          return;
+        }
+      }
+    } catch (e) {
+      console.warn("Erro ao ler localStorage:", e);
+    }
+    try {
+      state.filaments = initialFilaments.map(f => ({ ...f }));
+      state.products  = initialProducts.map(p => ({ ...p }));
+      state.orders = [];
+      state.prints = [];
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e){}
+      if (typeof renderAll === "function") renderAll();
+    } catch (e) {
+      console.error("Erro ao inicializar dados locais:", e);
+    }
+  }
+
+  async function saveState() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    } catch (e) {
+      console.error("Erro ao salvar no localStorage:", e);
+    }
+    try {
+      saveStateToRemote(state).then(ok => {
+        if (!ok) console.warn("Não foi possível salvar state no Firestore agora.");
+      }).catch(err => {
+        console.warn("saveStateToRemote erro:", err);
+      });
+    } catch (e) {
+      console.warn("Erro ao iniciar saveStateToRemote:", e);
+    }
+  }
+
+  window.loadState = loadState;
+  window.saveState = saveState;
+  window.saveStateToRemote = saveStateToRemote;
+  window.loadStateFromRemote = loadStateFromRemote;
+</script>
+
+<!-- WARNING: automatic removal of original loadState/saveState did not find any matches. If duplicates remain, the injected module may be overridden by existing functions. -->
+
+<script>
     const STORAGE_KEY = "productionSystem_v4_seeded";
     const energiaKwh = 0.2;
     const precoKwh = 0.95;
@@ -2108,21 +2183,41 @@
       renderProductList();
     }
 
-    document.addEventListener("DOMContentLoaded", async () => {
-    await loadState();
-      renderAll();
-    initTabs();
-});
+    document.addEventListener("DOMContentLoaded", () => {
+      loadState();
+      initTabs();
+
+      renderFilamentList();
+      renderProductList();
+      renderProductSelects();
+      renderColorSelects();
+      renderFilamentSelectForPrints();
+      renderOrderSelectForPrints();
+      renderOrders();
+      renderQueue();
+      renderPrints();
+      renderFilamentReport();
+      renderSalesKPIs();
+      document.getElementById("order-tax-percent").value = TAX_IMPOSTO.toFixed(2);
+
+      document.getElementById("filament-form").addEventListener("submit", handleFilamentFormSubmit);
+      document.getElementById("product-form").addEventListener("submit", handleProductFormSubmit);
+      document.getElementById("order-form").addEventListener("submit", handleOrderFormSubmit);
+      document.getElementById("print-form").addEventListener("submit", handlePrintFormSubmit);
+
+      document.getElementById("order-marketplace").addEventListener("change", applyMarketplaceDefaults);
+      document.getElementById("order-sale-price").addEventListener("blur", applyMarketplaceDefaults);
+
+      document.getElementById("add-stock-item-btn").addEventListener("click", addStockItemRow);
+
+      document.querySelectorAll('input[name="print-mode"]').forEach(radio => {
+        radio.addEventListener("change", () => {
+          const mode = document.querySelector('input[name="print-mode"]:checked').value;
+          document.getElementById("print-orders-section").style.display = mode === "pedidos" ? "block" : "none";
+          document.getElementById("stock-items-section").style.display = mode === "estoque" ? "block" : "none";
+        });
+      });
+    });
   </script>
-
-<script type="module">
-  import { loadStateFromRemote, saveStateToRemote } from "./firestore.js";
-  // Expose helpers so the existing code can call them if present
-  window.loadStateFromRemote = loadStateFromRemote;
-  window.saveStateToRemote = saveStateToRemote;
-</script>
-
 </body>
 </html>
-
-
