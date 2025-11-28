@@ -1,13 +1,23 @@
 {
-  "functions": {
-    "api/*.js": {
-      "runtime": "nodejs18.x"
-    }
-  },
-  "crons": [
+  "version": 2,
+  "builds": [
     {
-      "path": "/api/ml-sync",
-      "schedule": "*/5 * * * *"
+      "src": "backend/*.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "index.html",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/ml-sync",
+      "dest": "/backend/ml-sync.js"
+    },
+    {
+      "src": "/api/ml-token",
+      "dest": "/backend/ml-token.js"
     }
   ]
 }
