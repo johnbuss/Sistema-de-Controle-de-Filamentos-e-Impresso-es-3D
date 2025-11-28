@@ -704,15 +704,7 @@
   // mesma chave que você já usa (mantemos compatibilidade)
   const STORAGE_KEY = "productionSystem_v4_seeded";
 
-  async function loadState() {
-    try {
-      const remote = await loadStateFromRemote();
-      if (remote) {
-        state.filaments = remote.filaments;
-        state.products  = remote.products;
-        state.orders    = remote.orders;
-        state.prints    = remote.prints;
-        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e){}
+  async  catch(e){}
         if (typeof renderAll === "function") renderAll();
         return;
       }
@@ -747,10 +739,7 @@
     }
   }
 
-  async function saveState() {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    } catch (e) {
+  async  catch (e) {
       console.error("Erro ao salvar no localStorage:", e);
     }
     try {
@@ -846,18 +835,7 @@
       prints: []
     };
 
-    function loadState() {
-      try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if (raw) {
-          const parsed = JSON.parse(raw);
-          if (parsed) {
-            if (Array.isArray(parsed.filaments)) state.filaments = parsed.filaments;
-            if (Array.isArray(parsed.products)) state.products = parsed.products;
-            if (Array.isArray(parsed.orders)) state.orders = parsed.orders;
-            if (Array.isArray(parsed.prints)) state.prints = parsed.prints;
-            return;
-          }
+    
         }
       } catch (e) {
         console.error("Erro ao carregar dados:", e);
@@ -870,10 +848,7 @@
       saveState();
     }
 
-    function saveState() {
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-      } catch (e) {
+     catch (e) {
         console.error("Erro ao salvar dados:", e);
       }
     }
@@ -2184,31 +2159,11 @@
     }
 
     document.addEventListener("DOMContentLoaded", async () => {
-    await loadState();   // carrega Firestore OU localStorage
-    initTabs();          // inicializa as abas
+    await loadState();
+    initTabs();
 });
-
-      document.getElementById("order-tax-percent").value = TAX_IMPOSTO.toFixed(2);
-
-      document.getElementById("filament-form").addEventListener("submit", handleFilamentFormSubmit);
-      document.getElementById("product-form").addEventListener("submit", handleProductFormSubmit);
-      document.getElementById("order-form").addEventListener("submit", handleOrderFormSubmit);
-      document.getElementById("print-form").addEventListener("submit", handlePrintFormSubmit);
-
-      document.getElementById("order-marketplace").addEventListener("change", applyMarketplaceDefaults);
-      document.getElementById("order-sale-price").addEventListener("blur", applyMarketplaceDefaults);
-
-      document.getElementById("add-stock-item-btn").addEventListener("click", addStockItemRow);
-
-      document.querySelectorAll('input[name="print-mode"]').forEach(radio => {
-        radio.addEventListener("change", () => {
-          const mode = document.querySelector('input[name="print-mode"]:checked').value;
-          document.getElementById("print-orders-section").style.display = mode === "pedidos" ? "block" : "none";
-          document.getElementById("stock-items-section").style.display = mode === "estoque" ? "block" : "none";
-        });
       });
     });
   </script>
 </body>
 </html>
-
