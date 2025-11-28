@@ -1,6 +1,6 @@
 import { db } from "./firebase-admin.js";
 
-// Função interna para pegar o token (usada pelo ml-sync.js)
+// Função reutilizável para pegar o token válido
 export async function getValidAccessToken() {
   const clientId = process.env.ML_CLIENT_ID;
   const clientSecret = process.env.ML_CLIENT_SECRET;
@@ -13,9 +13,9 @@ export async function getValidAccessToken() {
   let refreshToken;
   let accessToken;
 
-  // Cenário 1: Primeira vez (sem token no banco)
+  // Caso 1: Primeira autorização (usando o CODE)
   if (!existing.exists) {
-    if (!authCode) throw new Error("ML_AUTH_CODE não configurado para primeira troca.");
+    if (!authCode) throw new Error("ML_AUTH_CODE ausente para primeira troca.");
     
     const resp = await fetch(`https://api.mercadolibre.com/oauth/token`, {
       method: "POST",
@@ -30,13 +30,13 @@ export async function getValidAccessToken() {
     });
 
     const data = await resp.json();
-    if (data.error) throw new Error(`Erro ML Auth: ${data.error} - ${data.message}`);
+    if (data.error) throw new Error(`Erro Auth ML: ${data.message}`);
 
     refreshToken = data.refresh_token;
     accessToken = data.access_token;
-
-  } else {
-    // Cenário 2: Refresh token (já existe no banco)
+  } 
+  // Caso 2: Renovação (usando Refresh Token)
+  else {
     refreshToken = existing.data().refresh_token;
 
     const resp = await fetch(`https://api.mercadolibre.com/oauth/token`, {
@@ -51,9 +51,9 @@ export async function getValidAccessToken() {
     });
 
     const data = await resp.json();
-    if (data.error) throw new Error(`Erro ML Refresh: ${data.error} - ${data.message}`);
+    if (data.error) throw new Error(`Erro Refresh ML: ${data.message}`);
 
-    // Se vier novo refresh token, atualiza. Se não, mantém o antigo.
+    // Atualiza se vier novo refresh_token, senão mantém o antigo
     refreshToken = data.refresh_token || refreshToken;
     accessToken = data.access_token;
   }
@@ -68,18 +68,19 @@ export async function getValidAccessToken() {
   return accessToken;
 }
 
-// Handler da API (para chamar via URL se necessário)
+// Handler da API (endpoint)
 export default async function handler(req, res) {
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "GET, POST");
-  
+  // CORS: Permite que seu site no GitHub acesse este backend
+  res.setHeader("Access-Control-Allow-Origin", "*"); 
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+
   if (req.method === "OPTIONS") return res.status(200).end();
 
   try {
-    const accessToken = await getValidAccessToken();
-    res.status(200).json({ success: true, accessToken: "***hidden***" });
+    await getValidAccessToken();
+    res.status(200).json({ success: true, message: "Token atualizado com sucesso." });
   } catch (error) {
-    console.error(error);
     res.status(500).json({ success: false, error: error.message });
   }
 }
