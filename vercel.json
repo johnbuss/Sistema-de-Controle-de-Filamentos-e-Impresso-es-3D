@@ -2,22 +2,29 @@
   "version": 2,
   "builds": [
     {
-      "src": "backend/*.js",
+      "src": "backend/**/*.js",
       "use": "@vercel/node"
-    },
-    {
-      "src": "index.html",
-      "use": "@vercel/static"
     }
   ],
   "routes": [
     {
       "src": "/api/ml-sync",
-      "dest": "/backend/ml-sync.js"
+      "dest": "/backend/ml-sync.js",
+      "methods": ["GET", "POST", "OPTIONS"]
     },
     {
       "src": "/api/ml-token",
-      "dest": "/backend/ml-token.js"
+      "dest": "/backend/ml-token.js",
+      "methods": ["GET", "POST", "OPTIONS"]
     }
-  ]
+  ],
+  "env": {
+    "NODE_ENV": "production"
+  },
+  "functions": {
+    "backend/**/*.js": {
+      "memory": 1024,
+      "maxDuration": 30
+    }
+  }
 }
