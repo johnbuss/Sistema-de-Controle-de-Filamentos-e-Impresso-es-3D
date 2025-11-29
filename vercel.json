@@ -8,6 +8,11 @@
   ],
   "routes": [
     {
+      "src": "/api/ml-callback",
+      "dest": "/backend/ml-callback.js",
+      "methods": ["GET", "OPTIONS"]
+    },
+    {
       "src": "/api/ml-sync",
       "dest": "/backend/ml-sync.js",
       "methods": ["GET", "POST", "OPTIONS"]
