@@ -57,10 +57,9 @@ export async function GET(request: NextRequest) {
     const countSnapshot = await query.count().get();
     const total = countSnapshot.data().count;
 
-    // 3. Processar cada pedido: verificar cache e buscar do ML se necessário
-    const accessToken = await getValidAccessToken();
+    // 3. Processar cada pedido: sempre usar cache, rastrear pedidos stale para refresh em background
     const orders: MLOrderFull[] = [];
-    let usingCacheCount = 0;
+    const staleOrderIds: string[] = [];
 
     for (const doc of snapshot.docs) {
       const firebaseOrder = { id: doc.id, ...doc.data() } as FirebaseOrder;
@@ -68,54 +67,43 @@ export async function GET(request: NextRequest) {
       // Verificar se cache é válido
       const cacheIsValid = isCacheValid(firebaseOrder.ml_cached_at);
 
-      let mlData: MLCachedData;
-      let isUsingCache = false;
+      // SEMPRE usar dados em cache (mesmo se stale)
+      if (firebaseOrder.ml_cached_data) {
+        const mlData = firebaseOrder.ml_cached_data;
 
-      if (cacheIsValid && firebaseOrder.ml_cached_data) {
-        // Cache válido: usar cache
-        mlData = firebaseOrder.ml_cached_data;
-        isUsingCache = false; // Cache normal, não é fallback
-      } else {
-        // Cache expirado ou inexistente: buscar do ML
-        try {
-          const mlOrder = await fetchMLOrderById(accessToken, doc.id);
-          mlData = extractMLCachedData(mlOrder);
-
-          // Atualizar cache no Firebase (async, não bloqueia resposta)
-          updateFirebaseCache(doc.id, mlData).catch((err) =>
-            console.error(`Erro ao atualizar cache de ${doc.id}:`, err)
-          );
-        } catch (error) {
-          console.warn(`⚠️ Falha ao buscar pedido ${doc.id} do ML, usando cache`, error);
-
-          // Fallback para cache (mesmo que velho)
-          if (firebaseOrder.ml_cached_data) {
-            mlData = firebaseOrder.ml_cached_data;
-            isUsingCache = true;
-            usingCacheCount++;
-          } else {
-            // Sem cache e sem ML: pular este pedido
-            console.error(`❌ Pedido ${doc.id} sem cache e ML indisponível`);
-            continue;
-          }
+        // Rastrear pedidos com cache expirado para refresh em background
+        if (!cacheIsValid) {
+          staleOrderIds.push(doc.id);
         }
+
+        // Mesclar dados do Firebase + ML
+        const fullOrder: MLOrderFull = {
+          ...firebaseOrder,
+          ml_data: mlData,
+          is_using_cache: !cacheIsValid,
+          cache_age_minutes: getCacheAgeMinutes(firebaseOrder.ml_cached_at),
+        };
+
+        orders.push(fullOrder);
+      } else {
+        // Sem cache: pular este pedido (será sincronizado no próximo cron)
+        console.error(`❌ Pedido ${doc.id} sem cache, pulando`);
+        continue;
       }
-
-      // Mesclar dados do Firebase + ML
-      const fullOrder: MLOrderFull = {
-        ...firebaseOrder,
-        ml_data: mlData,
-        is_using_cache: isUsingCache,
-        cache_age_minutes: getCacheAgeMinutes(firebaseOrder.ml_cached_at),
-      };
-
-      orders.push(fullOrder);
     }
 
-    // 4. Gerar warning se muitos pedidos usando cache por falha
+    // 4. Disparar refresh em background para pedidos com cache expirado (não aguarda)
+    if (staleOrderIds.length > 0) {
+      console.log(`🔄 Queueing ${staleOrderIds.length} orders for background refresh`);
+      queueOrdersForRefresh(staleOrderIds).catch((err) =>
+        console.error('Erro ao adicionar pedidos na fila:', err)
+      );
+    }
+
+    // 5. Gerar warning se existem pedidos sendo atualizados
     const cacheWarning =
-      usingCacheCount > 0
-        ? getCacheWarning(Date.now() - 20 * 60 * 1000) // Warning genérico
+      staleOrderIds.length > 0
+        ? `${staleOrderIds.length} pedidos sendo atualizados em background...`
         : undefined;
 
     const response: MLOrdersResponse = {
@@ -129,6 +117,8 @@ export async function GET(request: NextRequest) {
       },
       cache_warning: cacheWarning,
       synced_at: orders[0]?.syncedAt,
+      refreshing_count: staleOrderIds.length,
+      last_updated: Date.now(),
     };
 
     return NextResponse.json(response);
@@ -146,29 +136,37 @@ export async function GET(request: NextRequest) {
 }
 
 /**
- * Busca um pedido específico da API do ML
+ * Adiciona pedidos na fila para refresh em background
+ * Não aguarda a conclusão - dispara e esquece
  */
-async function fetchMLOrderById(accessToken: string, orderId: string): Promise<any> {
-  const response = await fetch(`https://api.mercadolibre.com/orders/${orderId}`, {
-    headers: {
-      'Authorization': `Bearer ${accessToken}`,
-    },
-  });
+async function queueOrdersForRefresh(orderIds: string[]): Promise<void> {
+  const batch = db.batch();
 
-  if (!response.ok) {
-    throw new Error(`ML API retornou status ${response.status} para pedido ${orderId}`);
+  // Limitar a 10 pedidos por vez para não sobrecarregar a fila
+  const limitedOrderIds = orderIds.slice(0, 10);
+
+  for (const orderId of limitedOrderIds) {
+    const queueRef = db.collection('refresh_queue').doc();
+    batch.set(queueRef, {
+      orderId,
+      status: 'pending',
+      priority: 1,
+      createdAt: Date.now(),
+      retryCount: 0,
+    });
   }
 
-  return response.json();
-}
+  await batch.commit();
 
-/**
- * Atualiza o cache de um pedido no Firebase
- */
-async function updateFirebaseCache(orderId: string, mlData: MLCachedData): Promise<void> {
-  await db.collection('orders').doc(orderId).update({
-    ml_cached_data: mlData,
-    ml_cached_at: Date.now(),
-    syncedAt: Date.now(),
+  // Disparar worker para processar fila (fire and forget)
+  const baseUrl = process.env.VERCEL_URL
+    ? `https://${process.env.VERCEL_URL}`
+    : 'http://localhost:3000';
+
+  fetch(`${baseUrl}/api/ml-orders/process-queue`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+  }).catch(() => {
+    // Ignora erro - o cron irá processar a fila eventualmente
   });
 }

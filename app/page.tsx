@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { collection, onSnapshot } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import {
@@ -60,21 +60,53 @@ export default function Home() {
     };
   }, []);
 
-  const handleSyncML = async () => {
+  const handleSyncML = useCallback(async (silent = false) => {
     setIsSyncing(true);
     try {
       const resp = await fetch('/api/ml-sync');
       const data = await resp.json();
-      alert(
-        `Sincronização concluída.\nPedidos sincronizados: ${data.total_synced ?? '?'}`
-      );
+
+      // Store last sync timestamp
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('lastMLSync', Date.now().toString());
+      }
+
+      if (!silent) {
+        alert(
+          `Sincronização concluída.\nPedidos sincronizados: ${data.total_synced ?? '?'}`
+        );
+      } else {
+        console.log('🔄 Auto-sync completed:', data.total_synced, 'orders synced');
+      }
     } catch (err) {
-      alert('Erro ao sincronizar com o Mercado Livre.');
-      console.error(err);
+      if (!silent) {
+        alert('Erro ao sincronizar com o Mercado Livre.');
+      }
+      console.error('Sync error:', err);
     } finally {
       setIsSyncing(false);
     }
-  };
+  }, []);
+
+  // Auto-sync on mount if last sync was >5 minutes ago
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const lastSync = localStorage.getItem('lastMLSync');
+    const now = Date.now();
+    const fiveMinutes = 5 * 60 * 1000;
+
+    if (!lastSync || (now - parseInt(lastSync)) > fiveMinutes) {
+      console.log('🔄 Auto-triggering ML sync (>5 min since last sync)');
+      // Delay to avoid blocking initial render
+      setTimeout(() => {
+        handleSyncML(true); // silent = true
+      }, 2000);
+    } else {
+      const nextSyncIn = Math.ceil((fiveMinutes - (now - parseInt(lastSync))) / 1000 / 60);
+      console.log(`⏰ Next auto-sync in ${nextSyncIn} minutes`);
+    }
+  }, [handleSyncML]);
 
   return (
     <div className="min-h-screen flex flex-col bg-[var(--bg-primary)]">

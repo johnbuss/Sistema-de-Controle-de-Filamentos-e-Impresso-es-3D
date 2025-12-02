@@ -7,7 +7,7 @@ import Badge from '@/components/ui/Badge';
 import { useMLOrders } from '@/hooks/useMLOrders';
 
 export default function VendasSection() {
-  const { orders, loading, paging, cacheWarning, nextPage, prevPage, refetch } = useMLOrders({
+  const { orders, loading, paging, cacheWarning, refreshingCount, nextPage, prevPage, refetch } = useMLOrders({
     limit: 50,
   });
 
@@ -69,6 +69,17 @@ export default function VendasSection() {
             <div>
               <div className="text-sm font-semibold text-amber-400 mb-1">Aviso de Cache</div>
               <div className="text-xs text-[var(--text-tertiary)]">{cacheWarning}</div>
+            </div>
+          </div>
+        )}
+
+        {/* Refreshing Indicator */}
+        {refreshingCount > 0 && (
+          <div className="mb-4 p-3 bg-blue-500/10 border border-blue-500/30 rounded-lg flex items-center gap-3">
+            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-400"></div>
+            <div className="text-sm text-blue-400">
+              Atualizando {refreshingCount} pedido{refreshingCount > 1 ? 's' : ''} em background...
+              <span className="text-xs text-[var(--text-tertiary)] ml-1">(auto-atualização a cada 10s)</span>
             </div>
           </div>
         )}

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import type { MLOrdersResponse, MLOrderFull } from '@/types';
 
 interface UseMLOrdersParams {
@@ -20,6 +20,7 @@ interface UseMLOrdersReturn {
   loading: boolean;
   error: string | null;
   cacheWarning: string | undefined;
+  refreshingCount: number; // NEW: Number of orders being refreshed in background
   refetch: () => Promise<void>;
   nextPage: () => void;
   prevPage: () => void;
@@ -46,6 +47,11 @@ export function useMLOrders({
   const [error, setError] = useState<string | null>(null);
   const [cacheWarning, setCacheWarning] = useState<string | undefined>(undefined);
   const [offset, setOffset] = useState(initialOffset);
+  const [refreshingCount, setRefreshingCount] = useState(0);
+  const [lastUpdated, setLastUpdated] = useState<number>(Date.now());
+
+  // Ref to store polling interval
+  const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const fetchOrders = useCallback(async () => {
     setLoading(true);
@@ -72,6 +78,8 @@ export function useMLOrders({
       setOrders(data.orders);
       setPaging(data.paging);
       setCacheWarning(data.cache_warning);
+      setRefreshingCount(data.refreshing_count || 0);
+      setLastUpdated(data.last_updated || Date.now());
     } catch (err: any) {
       console.error('Erro ao buscar pedidos:', err);
       setError(err.message || 'Erro desconhecido');
@@ -88,6 +96,36 @@ export function useMLOrders({
       fetchOrders();
     }
   }, [fetchOrders, autoFetch]);
+
+  // Setup auto-polling when orders are being refreshed in background
+  useEffect(() => {
+    // Clear existing interval
+    if (pollingIntervalRef.current) {
+      clearInterval(pollingIntervalRef.current);
+      pollingIntervalRef.current = null;
+    }
+
+    // Only poll if orders are being refreshed
+    if (refreshingCount > 0) {
+      console.log(`🔄 Starting auto-poll for ${refreshingCount} refreshing orders`);
+
+      pollingIntervalRef.current = setInterval(() => {
+        console.log('📡 Auto-polling for updates...');
+        fetchOrders();
+      }, 10000); // Poll every 10 seconds
+    } else {
+      console.log('✅ No orders refreshing, polling stopped');
+    }
+
+    // Cleanup on unmount or when refreshingCount changes
+    return () => {
+      if (pollingIntervalRef.current) {
+        console.log('🛑 Cleaning up polling interval');
+        clearInterval(pollingIntervalRef.current);
+        pollingIntervalRef.current = null;
+      }
+    };
+  }, [refreshingCount, fetchOrders]);
 
   const nextPage = useCallback(() => {
     if (paging?.has_next) {
@@ -111,6 +149,7 @@ export function useMLOrders({
     loading,
     error,
     cacheWarning,
+    refreshingCount,
     refetch: fetchOrders,
     nextPage,
     prevPage,

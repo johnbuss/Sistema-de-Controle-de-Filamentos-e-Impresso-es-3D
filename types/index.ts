@@ -171,4 +171,21 @@ export interface MLOrdersResponse {
   };
   cache_warning?: string;        // Warning se usando cache por falha da API
   synced_at?: number;            // Última sincronização
+  refreshing_count?: number;     // Quantidade de pedidos sendo atualizados em background
+  last_updated?: number;         // Timestamp da última atualização (para polling)
+}
+
+/**
+ * Item da fila de atualização em background
+ * Usado para processar atualizações de cache sem bloquear a resposta da API
+ */
+export interface RefreshQueueItem {
+  id?: string;                   // ID do documento na fila
+  orderId: string;               // ID do pedido a ser atualizado
+  status: 'pending' | 'processing' | 'completed' | 'failed';
+  priority: number;              // Prioridade (1 = alta)
+  retryCount: number;            // Quantidade de tentativas
+  lastError?: string;            // Última mensagem de erro
+  createdAt: number;             // Timestamp de criação na fila
+  processedAt?: number;          // Timestamp de processamento
 }
