@@ -1,5 +1,8 @@
 'use client';
 
+import Button from '@/components/ui/Button';
+import Badge from '@/components/ui/Badge';
+
 interface HeaderProps {
   onSyncML: () => void;
   isSyncing: boolean;
@@ -7,39 +10,59 @@ interface HeaderProps {
 
 export default function Header({ onSyncML, isSyncing }: HeaderProps) {
   return (
-    <header className="px-6 py-4 border-b border-white/10 flex items-center justify-between gap-4">
-      <div className="flex items-center gap-3.5">
-        <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-400 via-blue-700 to-slate-900 flex items-center justify-center font-extrabold text-lg text-white shadow-[0_0_18px_rgba(59,130,246,0.9)]">
-          3D
+    <header className="sticky top-0 z-10 bg-[var(--surface)]/95 backdrop-blur-lg border-b border-[var(--border-primary)] px-6 py-4">
+      <div className="flex items-center justify-between gap-4">
+        {/* Logo and Title */}
+        <div className="flex items-center gap-4">
+          <div className="relative">
+            <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-[var(--accent-primary)] to-[var(--accent-secondary)] flex items-center justify-center font-bold text-xl text-white shadow-lg">
+              3D
+            </div>
+            <div className="absolute -top-1 -right-1 w-3 h-3 bg-[var(--accent-success)] rounded-full border-2 border-[var(--surface)]" />
+          </div>
+          <div>
+            <h1 className="text-xl font-bold text-[var(--text-primary)]">
+              3DSync
+            </h1>
+            <p className="text-xs text-[var(--text-tertiary)] mt-0.5">
+              Langeloh • Controle de Impressão 3D
+            </p>
+          </div>
         </div>
-        <div>
-          <h1 className="text-lg uppercase tracking-wider font-semibold text-gray-100">
-            Controle 3D • Langeloh
-          </h1>
-          <span className="block text-xs uppercase tracking-widest text-gray-400 mt-0.5">
-            Filamentos • Impressões • Vendas • KPIs
-          </span>
-        </div>
-      </div>
 
-      <div className="flex items-center gap-2 flex-wrap justify-end">
-        <div className="rounded-full border border-white/20 px-3 py-1.5 text-xs uppercase tracking-widest text-gray-400 bg-slate-900/80 flex items-center gap-1.5">
-          <span className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_0_4px_rgba(34,197,94,0.25)]" />
-          Conectado ao Firebase
+        {/* Actions */}
+        <div className="flex items-center gap-3">
+          <Badge variant="success" size="md">
+            <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+              <path
+                fillRule="evenodd"
+                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                clipRule="evenodd"
+              />
+            </svg>
+            Firebase Conectado
+          </Badge>
+
+          <Button
+            variant="outline"
+            size="md"
+            onClick={onSyncML}
+            isLoading={isSyncing}
+            disabled={isSyncing}
+          >
+            {!isSyncing && (
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                />
+              </svg>
+            )}
+            {isSyncing ? 'Sincronizando...' : 'Sincronizar ML'}
+          </Button>
         </div>
-        <button
-          onClick={onSyncML}
-          disabled={isSyncing}
-          className={`
-            rounded-full px-3.5 py-2 text-xs border border-white/35
-            text-gray-300 bg-slate-900/60 flex items-center gap-1.5
-            transition-all hover:border-white/70 hover:text-gray-100 hover:bg-slate-900/90
-            disabled:opacity-50 disabled:cursor-not-allowed
-          `}
-        >
-          <span className="text-sm">{isSyncing ? '⏳' : '🔄'}</span>
-          {isSyncing ? 'Sincronizando...' : 'Sincronizar Mercado Livre'}
-        </button>
       </div>
     </header>
   );

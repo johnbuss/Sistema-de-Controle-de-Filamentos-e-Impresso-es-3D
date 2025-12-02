@@ -1,55 +1,56 @@
 'use client';
 
-import { Card, CardHeader, CardContent } from '@/components/ui/Card';
+import Card, { CardHeader, CardContent } from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
+import Table, { TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/Table';
+import Badge from '@/components/ui/Badge';
 import { useMLOrders } from '@/hooks/useMLOrders';
-import type { OrderStatus } from '@/types';
 
 export default function VendasSection() {
   const { orders, loading, paging, cacheWarning, nextPage, prevPage, refetch } = useMLOrders({
     limit: 50,
   });
 
-  const getStatusColor = (status: string) => {
-    const colors: Record<string, string> = {
-      paid: 'bg-green-500/20 text-green-300 border-green-500/40',
-      confirmed: 'bg-blue-500/20 text-blue-300 border-blue-500/40',
-      payment_in_process: 'bg-yellow-500/20 text-yellow-300 border-yellow-500/40',
-      payment_required: 'bg-orange-500/20 text-orange-300 border-orange-500/40',
-      cancelled: 'bg-red-500/20 text-red-300 border-red-500/40',
-      invalid: 'bg-gray-500/20 text-gray-300 border-gray-500/40',
-    };
-    return colors[status] || 'bg-gray-500/20 text-gray-300';
-  };
-
-  const getShippingStatusColor = (status: string) => {
-    const colors: Record<string, string> = {
-      pending: 'bg-yellow-500/20 text-yellow-300 border-yellow-500/40',
-      handling: 'bg-blue-500/20 text-blue-300 border-blue-500/40',
-      ready_to_ship: 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40',
-      shipped: 'bg-purple-500/20 text-purple-300 border-purple-500/40',
-      delivered: 'bg-green-500/20 text-green-300 border-green-500/40',
-      cancelled: 'bg-red-500/20 text-red-300 border-red-500/40',
-      not_delivered: 'bg-orange-500/20 text-orange-300 border-orange-500/40',
-    };
-    return colors[status] || 'bg-gray-500/20 text-gray-300';
+  const getStatusVariant = (status: string): 'success' | 'warning' | 'danger' | 'info' | 'default' => {
+    if (status === 'paid' || status === 'delivered') return 'success';
+    if (status === 'payment_in_process' || status === 'pending' || status === 'handling') return 'warning';
+    if (status === 'cancelled' || status === 'invalid' || status === 'not_delivered') return 'danger';
+    if (status === 'confirmed' || status === 'ready_to_ship') return 'info';
+    return 'default';
   };
 
   const formatStatus = (status: string) => {
     return status.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase());
   };
 
+  const formatDate = (dateString: string) => {
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: '2-digit' });
+    } catch {
+      return dateString;
+    }
+  };
+
   const totalVendas = orders.reduce((sum, o) => sum + (o.ml_data.price || 0), 0);
   const vendas3D = orders.filter((o) => o.sku.toUpperCase().includes('3D'));
 
   return (
-    <Card>
+    <Card variant="elevated">
       <CardHeader
         title="Vendas do Mercado Livre"
-        subtitle="Dados em tempo real da API do ML com cache inteligente."
+        subtitle="Pedidos sincronizados automaticamente da API do ML"
         action={
-          <Button icon="🔄" onClick={refetch} disabled={loading}>
-            {loading ? 'Carregando...' : 'Atualizar'}
+          <Button variant="outline" onClick={refetch} isLoading={loading} disabled={loading}>
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+              />
+            </svg>
+            Atualizar
           </Button>
         }
       />
@@ -57,156 +58,160 @@ export default function VendasSection() {
       <CardContent>
         {/* Cache Warning */}
         {cacheWarning && (
-          <div className="mb-3 p-2 bg-yellow-500/10 border border-yellow-500/30 rounded-lg text-yellow-300 text-xs">
-            {cacheWarning}
+          <div className="mb-6 p-4 bg-amber-500/10 border border-amber-500/30 rounded-lg flex items-start gap-3">
+            <svg className="w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+              <path
+                fillRule="evenodd"
+                d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                clipRule="evenodd"
+              />
+            </svg>
+            <div>
+              <div className="text-sm font-semibold text-amber-400 mb-1">Aviso de Cache</div>
+              <div className="text-xs text-[var(--text-tertiary)]">{cacheWarning}</div>
+            </div>
           </div>
         )}
 
-        {/* KPIs rápidos */}
-        <div className="grid grid-cols-3 gap-2 mb-3">
-          <div className="rounded-xl border border-white/30 bg-gradient-to-br from-blue-600/20 to-transparent p-2">
-            <div className="text-xs text-gray-400">Total de Vendas</div>
-            <div className="text-lg font-semibold">R$ {totalVendas.toFixed(2)}</div>
+        {/* Stats */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+          <div className="p-4 rounded-lg bg-[var(--surface-raised)] border border-[var(--border-secondary)]">
+            <div className="flex items-center justify-between mb-2">
+              <div className="text-xs text-[var(--text-tertiary)]">Total de Vendas</div>
+              <svg className="w-4 h-4 text-[var(--accent-success)]" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z" />
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <div className="text-2xl font-bold text-[var(--text-primary)]">R$ {totalVendas.toFixed(2)}</div>
+            <div className="text-xs text-[var(--text-muted)] mt-1">valor total</div>
           </div>
-          <div className="rounded-xl border border-white/30 bg-gradient-to-br from-blue-600/20 to-transparent p-2">
-            <div className="text-xs text-gray-400">Vendas 3D</div>
-            <div className="text-lg font-semibold">{vendas3D.length}</div>
+          <div className="p-4 rounded-lg bg-[var(--accent-primary-soft)] border border-[var(--accent-primary-border)]">
+            <div className="flex items-center justify-between mb-2">
+              <div className="text-xs text-[var(--text-tertiary)]">Vendas 3D</div>
+              <svg className="w-4 h-4 text-[var(--accent-primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+              </svg>
+            </div>
+            <div className="text-2xl font-bold text-[var(--accent-primary)]">{vendas3D.length}</div>
+            <div className="text-xs text-[var(--text-muted)] mt-1">pedidos</div>
           </div>
-          <div className="rounded-xl border border-white/30 bg-gradient-to-br from-blue-600/20 to-transparent p-2">
-            <div className="text-xs text-gray-400">Total de Pedidos</div>
-            <div className="text-lg font-semibold">{paging?.total || 0}</div>
+          <div className="p-4 rounded-lg bg-[var(--surface-raised)] border border-[var(--border-secondary)]">
+            <div className="flex items-center justify-between mb-2">
+              <div className="text-xs text-[var(--text-tertiary)]">Total de Pedidos</div>
+              <svg className="w-4 h-4 text-[var(--text-tertiary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+              </svg>
+            </div>
+            <div className="text-2xl font-bold text-[var(--text-primary)]">{paging?.total || 0}</div>
+            <div className="text-xs text-[var(--text-muted)] mt-1">sincronizados</div>
           </div>
         </div>
 
-        {/* Lista de vendas */}
-        <div className="rounded-2xl border border-white/30 bg-gradient-to-br from-blue-600/20 to-transparent overflow-hidden">
-          <div className="px-2.5 py-2 text-xs uppercase tracking-wider text-gray-400 border-b border-white/30 flex items-center justify-between">
-            <span>Pedidos (Página {Math.floor((paging?.offset || 0) / 50) + 1})</span>
-            <span className="text-gray-500">{paging?.total || 0} total</span>
-          </div>
-
+        {/* Table */}
+        <div className="rounded-lg border border-[var(--border-primary)] overflow-hidden">
           {loading ? (
-            <div className="p-8 text-center text-gray-400">
-              <div className="animate-pulse">Carregando pedidos...</div>
+            <div className="p-12 text-center">
+              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--accent-primary)]"></div>
+              <div className="mt-4 text-sm text-[var(--text-tertiary)]">Carregando pedidos...</div>
             </div>
           ) : orders.length === 0 ? (
-            <div className="p-4 text-xs text-gray-500 text-center">
-              Nenhuma venda encontrada. Sincronize com o ML usando o botão no header.
+            <div className="p-12 text-center">
+              <svg className="mx-auto h-12 w-12 text-[var(--text-muted)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+              </svg>
+              <div className="mt-4 text-sm text-[var(--text-tertiary)]">
+                Nenhuma venda encontrada
+              </div>
+              <div className="mt-2 text-xs text-[var(--text-muted)]">
+                Use o botão de sincronizar no topo da página
+              </div>
             </div>
           ) : (
-            <div className="overflow-auto max-h-[500px]">
-              <table className="w-full text-xs border-collapse min-w-[1000px]">
-                <thead>
-                  <tr className="bg-slate-900/96 sticky top-0 z-10">
-                    <th className="px-2 py-1.5 text-left text-xs uppercase tracking-wide text-gray-400">
-                      ID ML
-                    </th>
-                    <th className="px-2 py-1.5 text-left text-xs uppercase tracking-wide text-gray-400">
-                      Data
-                    </th>
-                    <th className="px-2 py-1.5 text-left text-xs uppercase tracking-wide text-gray-400">
-                      SKU
-                    </th>
-                    <th className="px-2 py-1.5 text-left text-xs uppercase tracking-wide text-gray-400">
-                      Produto
-                    </th>
-                    <th className="px-2 py-1.5 text-left text-xs uppercase tracking-wide text-gray-400">
-                      Cor
-                    </th>
-                    <th className="px-2 py-1.5 text-left text-xs uppercase tracking-wide text-gray-400">
-                      Comprador
-                    </th>
-                    <th className="px-2 py-1.5 text-left text-xs uppercase tracking-wide text-gray-400">
-                      Qtd
-                    </th>
-                    <th className="px-2 py-1.5 text-left text-xs uppercase tracking-wide text-gray-400">
-                      Preço
-                    </th>
-                    <th className="px-2 py-1.5 text-left text-xs uppercase tracking-wide text-gray-400">
-                      Status
-                    </th>
-                    <th className="px-2 py-1.5 text-left text-xs uppercase tracking-wide text-gray-400">
-                      Envio
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>ID ML</TableHead>
+                    <TableHead>Data</TableHead>
+                    <TableHead>SKU</TableHead>
+                    <TableHead>Produto</TableHead>
+                    <TableHead>Cor</TableHead>
+                    <TableHead>Comprador</TableHead>
+                    <TableHead>Qtd</TableHead>
+                    <TableHead>Preço</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Envio</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
                   {orders.map((order) => (
-                    <tr
-                      key={order.id}
-                      className="border-b border-slate-800/90 hover:bg-slate-900/80"
-                    >
-                      <td className="px-2 py-1.5 whitespace-nowrap font-mono text-xs text-blue-400">
+                    <TableRow key={order.id}>
+                      <TableCell className="font-mono text-xs text-[var(--accent-primary)]">
                         {order.id}
-                      </td>
-                      <td className="px-2 py-1.5 whitespace-nowrap">
-                        {order.ml_data.date_created}
-                      </td>
-                      <td className="px-2 py-1.5 whitespace-nowrap font-mono text-blue-300">
+                      </TableCell>
+                      <TableCell className="whitespace-nowrap">
+                        {formatDate(order.ml_data.date_created)}
+                      </TableCell>
+                      <TableCell className="font-mono font-semibold text-[var(--text-primary)]">
                         {order.sku}
-                      </td>
-                      <td className="px-2 py-1.5 max-w-[200px] truncate" title={order.ml_data.title}>
+                      </TableCell>
+                      <TableCell className="max-w-xs truncate" title={order.ml_data.title}>
                         {order.ml_data.title}
-                      </td>
-                      <td className="px-2 py-1.5 whitespace-nowrap">
-                        {order.ml_data.color || '-'}
-                      </td>
-                      <td className="px-2 py-1.5 whitespace-nowrap">
-                        {order.ml_data.buyer_nickname}
-                      </td>
-                      <td className="px-2 py-1.5 whitespace-nowrap">
-                        {order.ml_data.quantity}
-                      </td>
-                      <td className="px-2 py-1.5 whitespace-nowrap">
+                      </TableCell>
+                      <TableCell>{order.ml_data.color || '-'}</TableCell>
+                      <TableCell>{order.ml_data.buyer_nickname}</TableCell>
+                      <TableCell className="text-center">{order.ml_data.quantity}</TableCell>
+                      <TableCell className="font-semibold">
                         R$ {(order.ml_data.price || 0).toFixed(2)}
-                      </td>
-                      <td className="px-2 py-1.5 whitespace-nowrap">
-                        <span
-                          className={`inline-block px-2 py-0.5 rounded-full text-[10px] uppercase tracking-wider border ${getStatusColor(
-                            order.ml_data.status
-                          )}`}
-                        >
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant={getStatusVariant(order.ml_data.status)} size="sm">
                           {formatStatus(order.ml_data.status)}
-                        </span>
-                      </td>
-                      <td className="px-2 py-1.5 whitespace-nowrap">
-                        <span
-                          className={`inline-block px-2 py-0.5 rounded-full text-[10px] uppercase tracking-wider border ${getShippingStatusColor(
-                            order.ml_data.shipping_status
-                          )}`}
-                        >
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant={getStatusVariant(order.ml_data.shipping_status)} size="sm">
                           {formatStatus(order.ml_data.shipping_status)}
-                        </span>
-                      </td>
-                    </tr>
+                        </Badge>
+                      </TableCell>
+                    </TableRow>
                   ))}
-                </tbody>
-              </table>
+                </TableBody>
+              </Table>
             </div>
           )}
 
-          {/* Paginação */}
+          {/* Pagination */}
           {paging && paging.total > 0 && (
-            <div className="px-2.5 py-2 border-t border-white/30 flex items-center justify-between text-xs text-gray-400">
-              <div>
+            <div className="px-4 py-3 border-t border-[var(--border-primary)] flex items-center justify-between bg-[var(--bg-secondary)]">
+              <div className="text-sm text-[var(--text-tertiary)]">
                 Mostrando {paging.offset + 1} - {Math.min(paging.offset + paging.limit, paging.total)}{' '}
                 de {paging.total}
               </div>
               <div className="flex gap-2">
-                <button
+                <Button
+                  variant="secondary"
+                  size="sm"
                   onClick={prevPage}
                   disabled={!paging.has_prev || loading}
-                  className="px-3 py-1 rounded bg-slate-700/50 text-white disabled:opacity-30 disabled:cursor-not-allowed hover:bg-slate-600/50"
                 >
-                  ← Anterior
-                </button>
-                <button
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                  </svg>
+                  Anterior
+                </Button>
+                <Button
+                  variant="secondary"
+                  size="sm"
                   onClick={nextPage}
                   disabled={!paging.has_next || loading}
-                  className="px-3 py-1 rounded bg-slate-700/50 text-white disabled:opacity-30 disabled:cursor-not-allowed hover:bg-slate-600/50"
                 >
-                  Próxima →
-                </button>
+                  Próxima
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </Button>
               </div>
             </div>
           )}

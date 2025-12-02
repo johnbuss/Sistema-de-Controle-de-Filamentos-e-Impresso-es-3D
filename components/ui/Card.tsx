@@ -1,50 +1,81 @@
-import { ReactNode } from 'react';
+import { HTMLAttributes, forwardRef, ReactNode } from 'react';
 
-interface CardProps {
-  children: ReactNode;
-  className?: string;
+interface CardProps extends HTMLAttributes<HTMLDivElement> {
+  variant?: 'default' | 'elevated' | 'bordered';
+  padding?: 'none' | 'sm' | 'md' | 'lg';
 }
 
-export function Card({ children, className = '' }: CardProps) {
-  return (
-    <div
-      className={`
-        bg-gradient-to-b from-slate-900/96 to-slate-900/98
-        rounded-2xl border border-white/25 p-3.5
-        flex flex-col gap-2 min-h-[120px]
-        ${className}
-      `}
-    >
-      {children}
-    </div>
-  );
-}
+const Card = forwardRef<HTMLDivElement, CardProps>(
+  (
+    { variant = 'default', padding = 'md', className = '', children, ...props },
+    ref
+  ) => {
+    const baseStyles = 'rounded-xl transition-all duration-200';
 
+    const variants = {
+      default:
+        'bg-[var(--surface)] border border-[var(--border-primary)]',
+      elevated:
+        'bg-[var(--surface-raised)] border border-[var(--border-primary)] shadow-[var(--shadow-lg)]',
+      bordered:
+        'bg-[var(--surface)] border-2 border-[var(--border-secondary)]',
+    };
+
+    const paddings = {
+      none: '',
+      sm: 'p-3',
+      md: 'p-4',
+      lg: 'p-6',
+    };
+
+    return (
+      <div
+        ref={ref}
+        className={`${baseStyles} ${variants[variant]} ${paddings[padding]} ${className}`}
+        {...props}
+      >
+        {children}
+      </div>
+    );
+  }
+);
+
+Card.displayName = 'Card';
+
+export default Card;
+
+// CardHeader Component
 interface CardHeaderProps {
   title: string;
   subtitle?: string;
   action?: ReactNode;
+  className?: string;
 }
 
-export function CardHeader({ title, subtitle, action }: CardHeaderProps) {
+export function CardHeader({ title, subtitle, action, className = '' }: CardHeaderProps) {
   return (
-    <div className="flex items-center justify-between gap-1.5">
-      <div>
-        <div className="text-sm font-semibold text-gray-100">{title}</div>
+    <div className={`flex items-start justify-between gap-4 ${className}`}>
+      <div className="flex-1">
+        <h3 className="text-base font-semibold text-[var(--text-primary)]">
+          {title}
+        </h3>
         {subtitle && (
-          <div className="text-xs text-gray-400 mt-0.5">{subtitle}</div>
+          <p className="text-sm text-[var(--text-tertiary)] mt-0.5">
+            {subtitle}
+          </p>
         )}
       </div>
-      {action && <div>{action}</div>}
+      {action && <div className="flex-shrink-0">{action}</div>}
     </div>
   );
 }
 
+// CardContent Component
 interface CardContentProps {
   children: ReactNode;
   className?: string;
 }
 
 export function CardContent({ children, className = '' }: CardContentProps) {
-  return <div className={className}>{children}</div>;
+  return <div className={`mt-4 ${className}`}>{children}</div>;
 }

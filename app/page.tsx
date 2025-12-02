@@ -19,6 +19,7 @@ import Sidebar from '@/components/layout/Sidebar';
 import FilamentosSection from '@/components/sections/FilamentosSection';
 import ProdutosSection from '@/components/sections/ProdutosSection';
 import VendasSection from '@/components/sections/VendasSection';
+import Card from '@/components/ui/Card';
 import type { Filament, Product, Print } from '@/types';
 
 type Tab = 'cadastros' | 'vendas' | 'fila' | 'impressoes' | 'relatorios';
@@ -27,7 +28,7 @@ export default function Home() {
   const [activeTab, setActiveTab] = useState<Tab>('cadastros');
   const [isSyncing, setIsSyncing] = useState(false);
 
-  // State para dados do Firestore (apenas para seções que ainda não foram migradas)
+  // State para dados do Firestore
   const [filaments, setFilaments] = useState<Filament[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [prints, setPrints] = useState<Print[]>([]);
@@ -76,29 +77,28 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-6">
-      <div className="w-full max-w-[1320px] bg-gradient-to-br from-slate-900/96 to-slate-900/98 rounded-3xl border border-white/20 shadow-[0_18px_45px_rgba(15,23,42,0.9)] flex flex-col overflow-hidden">
-        <Header onSyncML={handleSyncML} isSyncing={isSyncing} />
+    <div className="min-h-screen flex flex-col bg-[var(--bg-primary)]">
+      <Header onSyncML={handleSyncML} isSyncing={isSyncing} />
 
-        <div className="grid grid-cols-1 md:grid-cols-[260px_1fr] min-h-[520px]">
+      <div className="flex flex-1 overflow-hidden">
+        <div className="w-64 flex-shrink-0">
           <Sidebar activeTab={activeTab} onTabChange={setActiveTab} />
+        </div>
 
-          <main className="px-4 py-4 bg-gradient-to-br from-blue-900/50 to-slate-900">
+        <main className="flex-1 overflow-y-auto p-6">
+          <div className="max-w-7xl mx-auto">
             {activeTab === 'cadastros' && (
-              <div>
-                <div className="mb-2.5">
-                  <h2 className="text-lg font-semibold flex items-center gap-2">
-                    Filamentos & Produtos
-                    <span className="text-xs uppercase tracking-widest px-2 py-0.5 rounded-full border border-blue-500/60 bg-slate-900/80 text-blue-300">
-                      Cadastro base
-                    </span>
+              <div className="space-y-6">
+                <div>
+                  <h2 className="text-2xl font-bold text-[var(--text-primary)] mb-2">
+                    Cadastros Base
                   </h2>
-                  <span className="text-xs text-gray-400 mt-0.5 block">
-                    Cadastre filamentos com custo e estoque, e os SKUs 3D da operação.
-                  </span>
+                  <p className="text-sm text-[var(--text-tertiary)]">
+                    Gerencie filamentos e produtos do seu estoque de impressão 3D
+                  </p>
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-3.5">
+                <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
                   <FilamentosSection
                     filaments={filaments}
                     onAdd={addFilament}
@@ -117,139 +117,184 @@ export default function Home() {
             )}
 
             {activeTab === 'vendas' && (
-              <div>
-                <div className="mb-2.5">
-                  <h2 className="text-lg font-semibold flex items-center gap-2">
-                    Vendas
-                    <span className="text-xs uppercase tracking-widest px-2 py-0.5 rounded-full border border-blue-500/60 bg-slate-900/80 text-blue-300">
-                      Mercado Livre
-                    </span>
+              <div className="space-y-6">
+                <div>
+                  <h2 className="text-2xl font-bold text-[var(--text-primary)] mb-2">
+                    Vendas do Mercado Livre
                   </h2>
-                  <span className="text-xs text-gray-400 mt-0.5 block">
-                    Pedidos do Mercado Livre com sincronização automática a cada 5 minutos.
-                  </span>
+                  <p className="text-sm text-[var(--text-tertiary)]">
+                    Acompanhe seus pedidos em tempo real com sincronização automática
+                  </p>
                 </div>
                 <VendasSection />
               </div>
             )}
 
             {activeTab === 'fila' && (
-              <div>
-                <div className="mb-2.5">
-                  <h2 className="text-lg font-semibold flex items-center gap-2">
+              <div className="space-y-6">
+                <div>
+                  <h2 className="text-2xl font-bold text-[var(--text-primary)] mb-2">
                     Fila de Impressão
-                    <span className="text-xs uppercase tracking-widest px-2 py-0.5 rounded-full border border-blue-500/60 bg-slate-900/80 text-blue-300">
-                      Prioridade por envio
-                    </span>
                   </h2>
-                  <span className="text-xs text-gray-400 mt-0.5 block">
-                    Aqui entram automaticamente as vendas com status &quot;A fazer&quot;.
-                  </span>
-                </div>
-                <div className="p-4 bg-slate-800/50 rounded-xl border border-white/20">
-                  <p className="text-xs text-gray-400">
-                    Fila de impressão será implementada em breve...
+                  <p className="text-sm text-[var(--text-tertiary)]">
+                    Organize e priorize as impressões por data de envio
                   </p>
                 </div>
+                <Card variant="elevated" padding="lg">
+                  <div className="text-center py-12">
+                    <svg className="mx-auto h-16 w-16 text-[var(--text-muted)] mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                    </svg>
+                    <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-2">
+                      Fila de Impressão
+                    </h3>
+                    <p className="text-sm text-[var(--text-tertiary)] max-w-md mx-auto">
+                      Esta funcionalidade está em desenvolvimento. Em breve você poderá gerenciar
+                      a fila de impressão com priorização automática por data de envio.
+                    </p>
+                  </div>
+                </Card>
               </div>
             )}
 
             {activeTab === 'impressoes' && (
-              <div>
-                <div className="mb-2.5">
-                  <h2 className="text-lg font-semibold flex items-center gap-2">
+              <div className="space-y-6">
+                <div>
+                  <h2 className="text-2xl font-bold text-[var(--text-primary)] mb-2">
                     Registro de Impressões
-                    <span className="text-xs uppercase tracking-widest px-2 py-0.5 rounded-full border border-blue-500/60 bg-slate-900/80 text-blue-300">
-                      Custo real
-                    </span>
                   </h2>
-                  <span className="text-xs text-gray-400 mt-0.5 block">
-                    Registro simples de impressões com tempo, gramas e custo de energia.
-                  </span>
-                </div>
-                <div className="p-4 bg-slate-800/50 rounded-xl border border-white/20">
-                  <p className="text-xs text-gray-400">
-                    Registro de impressões será implementado em breve...
-                  </p>
-                  <p className="text-xs text-gray-500 mt-2">
-                    Total de impressões: {prints.length}
+                  <p className="text-sm text-[var(--text-tertiary)]">
+                    Registre o consumo real de filamento e custos de energia
                   </p>
                 </div>
+                <Card variant="elevated" padding="lg">
+                  <div className="text-center py-12">
+                    <svg className="mx-auto h-16 w-16 text-[var(--text-muted)] mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                    </svg>
+                    <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-2">
+                      Registro de Impressões
+                    </h3>
+                    <p className="text-sm text-[var(--text-tertiary)] max-w-md mx-auto mb-4">
+                      Esta funcionalidade está em desenvolvimento. Em breve você poderá registrar
+                      tempo, gramas e custos de cada impressão realizada.
+                    </p>
+                    <p className="text-xs text-[var(--text-muted)]">
+                      Total de impressões registradas: {prints.length}
+                    </p>
+                  </div>
+                </Card>
               </div>
             )}
 
             {activeTab === 'relatorios' && (
-              <div>
-                <div className="mb-2.5">
-                  <h2 className="text-lg font-semibold flex items-center gap-2">
-                    Relatórios & KPIs
-                    <span className="text-xs uppercase tracking-widest px-2 py-0.5 rounded-full border border-blue-500/60 bg-slate-900/80 text-blue-300">
-                      Visão geral
-                    </span>
+              <div className="space-y-6">
+                <div>
+                  <h2 className="text-2xl font-bold text-[var(--text-primary)] mb-2">
+                    Relatórios e KPIs
                   </h2>
-                  <span className="text-xs text-gray-400 mt-0.5 block">
-                    Aqui vamos concentrar KPIs de filamento gasto, estoque, devoluções e
-                    lucratividade.
-                  </span>
+                  <p className="text-sm text-[var(--text-tertiary)]">
+                    Visão geral do seu negócio de impressão 3D
+                  </p>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
-                  <div className="rounded-2xl border border-white/30 bg-gradient-to-br from-blue-600/25 to-transparent p-2">
-                    <div className="text-xs uppercase tracking-wide text-gray-400 mb-1">
-                      Filamento comprado (kg)
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <Card variant="elevated" padding="md">
+                    <div className="flex items-start justify-between mb-3">
+                      <div>
+                        <div className="text-xs uppercase tracking-wide text-[var(--text-tertiary)] mb-1">
+                          Filamento Comprado
+                        </div>
+                        <div className="text-3xl font-bold text-[var(--text-primary)]">
+                          {filaments
+                            .reduce((sum, f) => sum + (f.qtdComprada || 0), 0)
+                            .toFixed(3)}
+                        </div>
+                        <div className="text-xs text-[var(--text-muted)] mt-1">kg total</div>
+                      </div>
+                      <div className="p-2 rounded-lg bg-[var(--accent-primary-soft)]">
+                        <svg className="w-6 h-6 text-[var(--accent-primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                      </div>
                     </div>
-                    <div className="text-lg font-semibold text-gray-100">
-                      {filaments
-                        .reduce((sum, f) => sum + (f.qtdComprada || 0), 0)
-                        .toFixed(3)}
-                    </div>
-                    <div className="text-xs text-gray-400 mt-0.5">
+                    <div className="text-xs text-[var(--text-tertiary)]">
                       Soma de todos os filamentos cadastrados
                     </div>
-                  </div>
+                  </Card>
 
-                  <div className="rounded-2xl border border-white/30 bg-gradient-to-br from-blue-600/25 to-transparent p-2">
-                    <div className="text-xs uppercase tracking-wide text-gray-400 mb-1">
-                      Filamento em estoque (kg)
+                  <Card variant="elevated" padding="md">
+                    <div className="flex items-start justify-between mb-3">
+                      <div>
+                        <div className="text-xs uppercase tracking-wide text-[var(--text-tertiary)] mb-1">
+                          Estoque Atual
+                        </div>
+                        <div className="text-3xl font-bold text-[var(--accent-success)]">
+                          {filaments
+                            .reduce((sum, f) => sum + (f.estoqueKg || 0), 0)
+                            .toFixed(3)}
+                        </div>
+                        <div className="text-xs text-[var(--text-muted)] mt-1">kg disponível</div>
+                      </div>
+                      <div className="p-2 rounded-lg bg-emerald-500/10">
+                        <svg className="w-6 h-6 text-[var(--accent-success)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                        </svg>
+                      </div>
                     </div>
-                    <div className="text-lg font-semibold text-gray-100">
-                      {filaments
-                        .reduce((sum, f) => sum + (f.estoqueKg || 0), 0)
-                        .toFixed(3)}
-                    </div>
-                    <div className="text-xs text-gray-400 mt-0.5">
+                    <div className="text-xs text-[var(--text-tertiary)]">
                       Atualizado conforme impressões
                     </div>
-                  </div>
+                  </Card>
 
-                  <div className="rounded-2xl border border-white/30 bg-gradient-to-br from-blue-600/25 to-transparent p-2">
-                    <div className="text-xs uppercase tracking-wide text-gray-400 mb-1">
-                      Produtos cadastrados
+                  <Card variant="elevated" padding="md">
+                    <div className="flex items-start justify-between mb-3">
+                      <div>
+                        <div className="text-xs uppercase tracking-wide text-[var(--text-tertiary)] mb-1">
+                          Produtos
+                        </div>
+                        <div className="text-3xl font-bold text-[var(--text-primary)]">
+                          {products.length}
+                        </div>
+                        <div className="text-xs text-[var(--text-muted)] mt-1">SKUs cadastrados</div>
+                      </div>
+                      <div className="p-2 rounded-lg bg-[var(--accent-primary-soft)]">
+                        <svg className="w-6 h-6 text-[var(--accent-primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                        </svg>
+                      </div>
                     </div>
-                    <div className="text-lg font-semibold text-gray-100">
-                      {products.length}
-                    </div>
-                    <div className="text-xs text-gray-400 mt-0.5">
+                    <div className="text-xs text-[var(--text-tertiary)]">
                       Total de SKUs no sistema
                     </div>
-                  </div>
+                  </Card>
 
-                  <div className="rounded-2xl border border-white/30 bg-gradient-to-br from-blue-600/25 to-transparent p-2">
-                    <div className="text-xs uppercase tracking-wide text-gray-400 mb-1">
-                      Impressões registradas
+                  <Card variant="elevated" padding="md">
+                    <div className="flex items-start justify-between mb-3">
+                      <div>
+                        <div className="text-xs uppercase tracking-wide text-[var(--text-tertiary)] mb-1">
+                          Impressões
+                        </div>
+                        <div className="text-3xl font-bold text-[var(--text-primary)]">
+                          {prints.length}
+                        </div>
+                        <div className="text-xs text-[var(--text-muted)] mt-1">registradas</div>
+                      </div>
+                      <div className="p-2 rounded-lg bg-[var(--accent-primary-soft)]">
+                        <svg className="w-6 h-6 text-[var(--accent-primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                        </svg>
+                      </div>
                     </div>
-                    <div className="text-lg font-semibold text-gray-100">
-                      {prints.length}
-                    </div>
-                    <div className="text-xs text-gray-400 mt-0.5">
+                    <div className="text-xs text-[var(--text-tertiary)]">
                       Total de impressões concluídas
                     </div>
-                  </div>
+                  </Card>
                 </div>
               </div>
             )}
-          </main>
-        </div>
+          </div>
+        </main>
       </div>
     </div>
   );
